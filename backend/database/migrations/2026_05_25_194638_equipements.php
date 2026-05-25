@@ -11,7 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('equipements', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('site_id')->constrained()->onDelete('cascade');
+            $table->string('nom');
+            $table->string('code')->unique();
+            $table->string('type');
+            $table->string('marque')->nullable();
+            $table->string('modele')->nullable();
+            $table->date('date_achat')->nullable();
+            $table->date('derniere_maintenance')->nullable();
+            $table->enum('statut', ['operationnel', 'en_maintenance', 'en_panne'])->default('operationnel');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -19,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+         Schema::dropIfExists('equipements');
     }
 };
