@@ -11,7 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('photos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('rapport_id')->constrained()->onDelete('cascade');
+            $table->string('url');
+            $table->string('legende')->nullable();
+            $table->enum('type', ['avant', 'apres', 'pendant'])->default('pendant');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -19,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('photos');
     }
 };
