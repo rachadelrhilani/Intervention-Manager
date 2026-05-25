@@ -11,7 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('nom');
+            $table->text('description')->nullable();
+            $table->string('icone')->nullable();
+            $table->enum('priorite_par_defaut', ['basse', 'moyenne', 'haute', 'urgente'])->default('moyenne');
+            $table->integer('duree_estimee')->nullable(); // en minutes
+            $table->boolean('est_active')->default(true);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -19,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('categories');
     }
 };

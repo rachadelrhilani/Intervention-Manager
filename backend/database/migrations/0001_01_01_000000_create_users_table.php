@@ -11,13 +11,30 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('nom');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            $table->string('telephone')->nullable();
+            $table->string('mot_de_passe');
+            $table->enum('role', ['demandeur', 'technicien', 'administrateur']);
+            $table->boolean('est_actif')->default(true);
+            
+            // Champs spécifiques selon le rôle
+            $table->string('nom_entreprise')->nullable(); // pour demandeur
+            $table->string('numero_tva')->nullable(); // pour demandeur
+            $table->enum('contact_prefere', ['email', 'telephone'])->nullable(); // pour demandeur
+            
+            $table->string('specialite')->nullable(); // pour technicien
+            $table->date('date_embauche')->nullable(); // pour technicien
+            $table->decimal('salaire', 10, 2)->nullable(); // pour technicien
+            $table->boolean('est_disponible')->default(true); // pour technicien
+            $table->decimal('latitude', 10, 8)->nullable(); // pour technicien
+            $table->decimal('longitude', 11, 8)->nullable(); // pour technicien
+            
+            $table->boolean('est_super_admin')->default(false); // pour administrateur
+            $table->string('derniere_ip_connexion')->nullable(); // pour administrateur
+            
             $table->timestamps();
         });
 
