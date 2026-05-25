@@ -11,7 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+         Schema::create('interventions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('demande_id')->constrained()->onDelete('cascade');
+            $table->foreignId('assignee_par')->constrained('users')->onDelete('set null');
+            $table->datetime('debut_prevue');
+            $table->datetime('fin_prevue');
+            $table->datetime('debut_reelle')->nullable();
+            $table->datetime('fin_reelle')->nullable();
+            $table->enum('statut', ['planifiee', 'en_cours', 'en_attente_validation', 'terminee', 'annulee'])->default('planifiee');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -19,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('interventions');
     }
 };
