@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('demandes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('demandeur_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('categorie_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('equipement_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('site_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('categorie_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('equipement_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('site_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('titre');
             $table->text('description');
             $table->enum('priorite', ['basse', 'moyenne', 'haute', 'urgente'])->default('moyenne');

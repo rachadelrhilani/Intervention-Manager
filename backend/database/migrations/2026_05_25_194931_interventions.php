@@ -14,7 +14,7 @@ return new class extends Migration
          Schema::create('interventions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('demande_id')->constrained()->onDelete('cascade');
-            $table->foreignId('assignee_par')->constrained('users')->onDelete('set null');
+            $table->foreignId('assignee_par')->constrained('users')->onDelete('cascade');
             $table->datetime('debut_prevue');
             $table->datetime('fin_prevue');
             $table->datetime('debut_reelle')->nullable();
