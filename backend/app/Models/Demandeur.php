@@ -1,5 +1,4 @@
 <?php
-// app/Models/Demandeur.php
 
 namespace App\Models;
 

@@ -1,5 +1,4 @@
 <?php
-// app/Models/Technicien.php
 
 namespace App\Models;
 
