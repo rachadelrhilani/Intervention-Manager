@@ -36,9 +36,6 @@ class User extends Authenticatable
         return $this->getKey();
     }
 
-    /**
-     * Return custom claims to be added to the JWT token.
-     */
     public function getJWTCustomClaims()
     {
         return [
@@ -48,7 +45,6 @@ class User extends Authenticatable
         ];
     }
 
-    // Mutator pour le mot de passe
     public function setMotDePasseAttribute(String $value)
     {
         $this->attributes['mot_de_passe'] = bcrypt($value);
