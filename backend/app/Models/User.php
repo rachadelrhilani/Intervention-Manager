@@ -31,6 +31,29 @@ class User extends Authenticatable
         'date_embauche' => 'date',
     ];
 
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return custom claims to be added to the JWT token.
+     */
+    public function getJWTCustomClaims()
+    {
+        return [
+            'role' => $this->role,
+            'nom' => $this->nom,
+            'email' => $this->email,
+        ];
+    }
+
+    // Mutator pour le mot de passe
+    public function setMotDePasseAttribute(String $value)
+    {
+        $this->attributes['mot_de_passe'] = bcrypt($value);
+    }
+
     // Relations
     public function notifications()
     {
