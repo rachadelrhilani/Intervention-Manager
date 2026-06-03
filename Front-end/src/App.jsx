@@ -1,122 +1,72 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// src/App.jsx
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+
+// Import des dashboards (à créer)
+// import DemandeurDashboard from './pages/demandeur/Dashboard';
+// import TechnicienDashboard from './pages/technicien/Dashboard';
+// import AdminDashboard from './pages/admin/Dashboard';
+
+// Composants temporaires pour test
+const DemandeurDashboard = () => <div className="p-8"><h1>Dashboard Demandeur</h1></div>;
+const TechnicienDashboard = () => <div className="p-8"><h1>Dashboard Technicien</h1></div>;
+const AdminDashboard = () => <div className="p-8"><h1>Dashboard Administrateur</h1></div>;
 
 function App() {
-  const [count, setCount] = useState(0)
+    return (
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+                    {/* Routes publiques */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/SignUp" element={<SignUp />} />
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+                    {/* Routes protégées - Demandeur */}
+                    <Route path="/demandeur" element={
+                        <PrivateRoute allowedRoles={['demandeur']}>
+                            <DemandeurDashboard />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/demandeur/dashboard" element={
+                        <PrivateRoute allowedRoles={['demandeur']}>
+                            <DemandeurDashboard />
+                        </PrivateRoute>
+                    } />
 
-      <div className="ticks"></div>
+                    {/* Routes protégées - Technicien */}
+                    <Route path="/technicien" element={
+                        <PrivateRoute allowedRoles={['technicien']}>
+                            <TechnicienDashboard />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/technicien/dashboard" element={
+                        <PrivateRoute allowedRoles={['technicien']}>
+                            <TechnicienDashboard />
+                        </PrivateRoute>
+                    } />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+                    {/* Routes protégées - Administrateur */}
+                    <Route path="/admin" element={
+                        <PrivateRoute allowedRoles={['administrateur']}>
+                            <AdminDashboard />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/admin/dashboard" element={
+                        <PrivateRoute allowedRoles={['administrateur']}>
+                            <AdminDashboard />
+                        </PrivateRoute>
+                    } />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+                    {/* Redirection par défaut */}
+                    <Route path="/" element={<Navigate to="/login" replace />} />
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
+    );
 }
 
-export default App
+export default App;

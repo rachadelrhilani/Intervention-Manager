@@ -22,10 +22,10 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = async (email, motDePasse) => {
+    const login = async (credentials) => {
         setError(null);
         try {
-            const response = await authService.login({ email, mot_de_passe: motDePasse });
+            const response = await authService.login(credentials);
             const { access_token, user } = response.data.data;
 
             localStorage.setItem('token', access_token);

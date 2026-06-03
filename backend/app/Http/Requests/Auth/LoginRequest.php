@@ -15,7 +15,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => 'required|email',
-            'mot_de_passe' => 'required|string|min:6'
+            'password' => 'required|string|min:6'
         ];
     }
 
@@ -24,8 +24,8 @@ class LoginRequest extends FormRequest
         return [
             'email.required' => 'L\'adresse email est requise',
             'email.email' => 'Format d\'email invalide',
-            'mot_de_passe.required' => 'Le mot de passe est requis',
-            'mot_de_passe.min' => 'Le mot de passe doit contenir au moins 6 caractères'
+            'password.required' => 'Le mot de passe est requis',
+            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères'
         ];
     }
 }

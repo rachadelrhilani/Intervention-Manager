@@ -24,7 +24,7 @@ class AuthService implements AuthServiceInterface
         // Vérifier les identifiants
         if (!$token = Auth::guard('api')->attempt([
             'email' => $credentials['email'],
-            'password' => $credentials['mot_de_passe']
+            'password' => $credentials['password']
         ])) {
             return null;
         }
@@ -55,13 +55,16 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
+    /**
+     * Inscription d'un nouveau demandeur
+     */
     public function register(array $data)
     {
         $userData = [
             'nom' => $data['nom'],
             'email' => $data['email'],
             'telephone' => $data['telephone'] ?? null,
-            'mot_de_passe' => $data['mot_de_passe'],
+            'password' => $data['password'],
             'role' => 'demandeur',
             'est_actif' => true,
             'nom_entreprise' => $data['nom_entreprise'] ?? null,
@@ -88,6 +91,9 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
+    /**
+     * Déconnexion utilisateur
+     */
     public function logout($user): bool
     {
         try {
@@ -98,6 +104,9 @@ class AuthService implements AuthServiceInterface
         }
     }
 
+    /**
+     * Rafraîchir le token
+     */
     public function refresh($user): array
     {
         $newToken = JWTAuth::refresh(JWTAuth::getToken());

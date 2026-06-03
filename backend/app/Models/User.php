@@ -15,14 +15,29 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
 
     protected $fillable = [
-        'nom', 'email', 'telephone', 'mot_de_passe', 'role',
-        'est_actif', 'nom_entreprise', 'numero_tva', 'contact_prefere',
-        'specialite', 'date_embauche', 'salaire', 'est_disponible',
-        'latitude', 'longitude', 'est_super_admin', 'derniere_ip_connexion'
+        'nom',
+        'email',
+        'telephone',
+        'password',
+        'role',
+        'est_actif',
+        'nom_entreprise',
+        'numero_tva',
+        'contact_prefere',
+        'specialite',
+        'date_embauche',
+        'salaire',
+        'est_disponible',
+        'latitude',
+        'longitude',
+        'est_super_admin',
+        'derniere_ip_connexion',
+        'last_login_at',
     ];
 
     protected $hidden = [
-        'mot_de_passe', 'remember_token',
+        'mot_de_passe',
+        'remember_token',
     ];
 
     protected $casts = [
@@ -48,9 +63,8 @@ class User extends Authenticatable implements JWTSubject
 
     public function setMotDePasseAttribute(String $value)
     {
-        $this->attributes['mot_de_passe'] = bcrypt($value);
+        $this->attributes['password'] = bcrypt($value);
     }
-
     // Relations
     public function notifications()
     {

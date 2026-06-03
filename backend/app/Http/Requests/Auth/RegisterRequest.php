@@ -18,7 +18,7 @@ class RegisterRequest extends FormRequest
             'nom' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'telephone' => 'nullable|string|max:20',
-            'mot_de_passe' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6|confirmed',
             'nom_entreprise' => 'nullable|string|max:255',
             'numero_tva' => 'nullable|string|max:50',
             'contact_prefere' => 'nullable|in:email,telephone'
@@ -32,9 +32,9 @@ class RegisterRequest extends FormRequest
             'email.required' => 'L\'adresse email est requise',
             'email.email' => 'Format d\'email invalide',
             'email.unique' => 'Cet email est déjà utilisé',
-            'mot_de_passe.required' => 'Le mot de passe est requis',
-            'mot_de_passe.min' => 'Le mot de passe doit contenir au moins 6 caractères',
-            'mot_de_passe.confirmed' => 'La confirmation du mot de passe ne correspond pas'
+            'password.required' => 'Le mot de passe est requis',
+            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères',
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas'
         ];
     }
 }
