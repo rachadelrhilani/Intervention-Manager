@@ -1,89 +1,56 @@
-// src/contexts/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { authService } from '../services/api';
 
-const AuthContext = createContext({});
+const AuthContext = createContext(null);
 
-export const useAuth = () => useContext(AuthContext);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('jwt_token'));
+  const [loading, setLoading] = useState(true);
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user_data');
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
+  }, [token]);
 
-    useEffect(() => {
-        // Vérifier si l'utilisateur est déjà connecté
-        const token = localStorage.getItem('token');
-        const storedUser = localStorage.getItem('user');
+  const handleLogin = (authData) => {
+    const accessToken = authData.access_token;
+    const userData = authData.user;
 
-        if (token && storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
-    }, []);
+    localStorage.setItem('jwt_token', accessToken);
+    localStorage.setItem('user_data', JSON.stringify(userData));
+    
+    setToken(accessToken);
+    setUser(userData);
 
-    const login = async (credentials) => {
-        setError(null);
-        try {
-            const response = await authService.login(credentials);
-            const { access_token, user } = response.data.data;
+    return userData.role;
+  };
 
-            localStorage.setItem('token', access_token);
-            localStorage.setItem('user', JSON.stringify(user));
-            setUser(user);
+  const handleLogout = () => {
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('user_data');
+    setToken(null);
+    setUser(null);
+  };
 
-            return { success: true, user };
-        } catch (err) {
-            const message = err.response?.data?.message || 'Erreur de connexion';
-            setError(message);
-            return { success: false, message };
-        }
-    };
+  const value = {
+    user,
+    token,
+    isAuthenticated: !!token,
+    login: handleLogin,
+    logout: handleLogout,
+    loading
+  };
 
-    const register = async (userData) => {
-        setError(null);
-        try {
-            const response = await authService.register(userData);
-            const { access_token, user } = response.data.data;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+}
 
-            localStorage.setItem('token', access_token);
-            localStorage.setItem('user', JSON.stringify(user));
-            setUser(user);
-
-            return { success: true, user };
-        } catch (err) {
-            const errors = err.response?.data?.errors || {};
-            const message = err.response?.data?.message || 'Erreur d\'inscription';
-            setError(message);
-            return { success: false, message, errors };
-        }
-    };
-
-    const logout = async () => {
-        try {
-            await authService.logout();
-        } catch (err) {
-            console.error('Erreur lors de la déconnexion', err);
-        } finally {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setUser(null);
-        }
-    };
-
-    const value = {
-        user,
-        loading,
-        error,
-        login,
-        register,
-        logout,
-        isAuthenticated: !!user
-    };
-
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
+export function useAuth() {
+  return useContext(AuthContext);
+}
