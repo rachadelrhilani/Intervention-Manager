@@ -2,102 +2,81 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends Authenticatable implements JWTSubject
-{
-    use HasApiTokens, HasFactory, Notifiable;
+class User extends Authenticatable{
+    use HasFactory, Notifiable;
 
     protected $table = 'users';
 
     protected $fillable = [
         'nom',
         'email',
-        'telephone',
         'password',
-        'role',
         'est_actif',
-        'nom_entreprise',
-        'numero_tva',
-        'contact_prefere',
+        'role', // 'demandeur', 'traiteur', 'administrateur'
+
+        // Champs Spécifiques : Demandeur
+        'service',
+        'type_demandeur', // Interne, Externe, CentreAppel
+        'telephone',
+
+        // Champs Spécifiques : Traiteur
         'specialite',
-        'date_embauche',
-        'salaire',
+        'niveau_traiteur', // 1, 2, 3
+        'tickets_traites',
+        'temps_moyen_resolution',
         'est_disponible',
-        'latitude',
-        'longitude',
-        'est_super_admin',
-        'derniere_ip_connexion',
-        'last_login_at',
+
+        // Champs Spécifiques : Administrateur
+        'niveau_acces', // 1=Super, 2=Standard, 3=Lecture
+        'droits',
+        'logs_actions',
     ];
 
     protected $hidden = [
-        'mot_de_passe',
+        'password',
         'remember_token',
     ];
 
     protected $casts = [
         'est_actif' => 'boolean',
         'est_disponible' => 'boolean',
-        'est_super_admin' => 'boolean',
-        'date_embauche' => 'date',
+        'droits' => 'array',
+        'logs_actions' => 'array',
+        'dernier_connexion' => 'datetime',
     ];
 
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
+    // --- RELATIONS ---
+
+    // Association (1 à 0..*) : Un demandeur a plusieurs tickets
+    public function ticketsCrees(){
+        return $this->hasMany(Ticket::class, 'demandeur_id');
     }
 
-    public function getJWTCustomClaims()
-    {
-        return [
-            'role' => $this->role,
-            'nom' => $this->nom,
-            'email' => $this->email,
-        ];
+    // Association (0..1 à 0..*) : Un traiteur s'occupe de plusieurs tickets
+    public function ticketsAssignes(){
+        return $this->hasMany(Ticket::class, 'traiteur_id');
     }
 
-    public function setMotDePasseAttribute(String $value)
-    {
-        $this->attributes['password'] = bcrypt($value);
-    }
-    // Relations
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class, 'utilisateur_id');
+    // Dépendance (Admin crée des règles d'automatisation)
+    public function reglesCrees(){
+        return $this->hasMany(RegleAutomatisation::class, 'createur_id');
     }
 
-    public function demandes()
-    {
-        return $this->hasMany(Demande::class, 'demandeur_id');
+    // --- SCOPES POUR SIMULER L'HÉRITAGE ---
+
+    public function scopeDemandeurs($query){
+        return $query->where('role', 'demandeur');
     }
 
-    public function interventionsTechnicien()
-    {
-        return $this->hasMany(InterventionTechnicien::class, 'technicien_id');
+    public function scopeTraiteurs($query){
+        return $query->where('role', 'traiteur');
     }
 
-    public function interventionsAssignee()
-    {
-        return $this->hasMany(Intervention::class, 'assignee_par');
-    }
-
-    public function validationsRapport()
-    {
-        return $this->hasMany(Rapport::class, 'valide_par');
-    }
-
-    public function evaluations()
-    {
-        return $this->hasMany(Evaluation::class, 'demandeur_id');
-    }
-
-    public function factures()
-    {
-        return $this->hasMany(Facture::class, 'demandeur_id');
+    public function scopeAdministrateurs($query){
+        return $query->where('role', 'administrateur');
     }
 }
