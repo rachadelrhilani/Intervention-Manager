@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('regle_automatisations', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
-            $table->text('description')->nullable();
-            $table->string('icone')->nullable();
-            $table->enum('priorite_par_defaut', ['basse', 'moyenne', 'haute', 'urgente'])->default('moyenne');
-            $table->integer('duree_estimee')->nullable(); // en minutes
+            $table->string('condition');
+            $table->string('action');
+            $table->json('parametres')->nullable();
             $table->boolean('est_active')->default(true);
+            $table->integer('priorite_execution')->default(1);
+
+            $table->foreignId('createur_id')->constrained('users'); // Administrateur
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('regle_automatisations');
     }
 };

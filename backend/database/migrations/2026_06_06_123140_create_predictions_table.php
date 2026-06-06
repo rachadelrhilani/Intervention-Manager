@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('photos', function (Blueprint $table) {
+        Schema::create('predictions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('rapport_id')->constrained()->onDelete('cascade');
-            $table->string('url');
-            $table->string('legende')->nullable();
-            $table->enum('type', ['avant', 'apres', 'pendant'])->default('pendant');
+            $table->enum('cible_prediction', ['SLA', 'Traiteur', 'Priorite']);
+            $table->string('valeur_predite');
+            $table->decimal('score_confiance', 5, 2);
+
+            $table->foreignId('ticket_id')->constrained('tickets')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('photos');
+        Schema::dropIfExists('predictions');
     }
 };

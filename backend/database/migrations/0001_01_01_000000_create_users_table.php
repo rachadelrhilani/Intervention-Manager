@@ -15,26 +15,29 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table->string('email')->unique();
-            $table->string('telephone')->nullable();
-            $table->string('mot_de_passe');
-            $table->enum('role', ['demandeur', 'technicien', 'administrateur']);
+            $table->string('password');
             $table->boolean('est_actif')->default(true);
-            
-            // Champs spécifiques selon le rôle
-            $table->string('nom_entreprise')->nullable(); // pour demandeur
-            $table->string('numero_tva')->nullable(); // pour demandeur
-            $table->enum('contact_prefere', ['email', 'telephone'])->nullable(); // pour demandeur
-            
-            $table->string('specialite')->nullable(); // pour technicien
-            $table->date('date_embauche')->nullable(); // pour technicien
-            $table->decimal('salaire', 10, 2)->nullable(); // pour technicien
-            $table->boolean('est_disponible')->default(true); // pour technicien
-            $table->decimal('latitude', 10, 8)->nullable(); // pour technicien
-            $table->decimal('longitude', 11, 8)->nullable(); // pour technicien
-            
-            $table->boolean('est_super_admin')->default(false); // pour administrateur
-            $table->string('derniere_ip_connexion')->nullable(); // pour administrateur
-            
+            $table->enum('role', ['demandeur', 'traiteur', 'administrateur']);
+            $table->timestamp('dernier_connexion')->nullable();
+
+            // Champs spécifiques : Demandeur
+            $table->string('service')->nullable();
+            $table->enum('type_demandeur', ['Interne', 'Externe', 'CentreAppel'])->nullable();
+            $table->string('telephone')->nullable();
+
+            // Champs spécifiques : Traiteur
+            $table->string('specialite')->nullable();
+            $table->integer('niveau_traiteur')->nullable(); // 1, 2, 3
+            $table->integer('tickets_traites')->default(0);
+            $table->integer('temps_moyen_resolution')->default(0); // En minutes
+            $table->boolean('est_disponible')->default(true);
+
+            // Champs spécifiques : Administrateur
+            $table->integer('niveau_acces')->nullable(); // 1, 2, 3
+            $table->json('droits')->nullable();
+            $table->json('logs_actions')->nullable();
+
+            $table->rememberToken();
             $table->timestamps();
         });
 

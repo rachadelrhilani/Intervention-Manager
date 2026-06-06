@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sites', function (Blueprint $table) {
+        Schema::create('procedures', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
-            $table->string('adresse');
-            $table->string('ville');
-            $table->string('code_postal');
-            $table->decimal('latitude', 10, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
-            $table->string('telephone')->nullable();
+            $table->text('description')->nullable();
+            $table->json('etapes'); // Stockera le array<string>
+            $table->integer('duree_estimee'); // En minutes
+            $table->boolean('est_active')->default(true);
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sites');
+        Schema::dropIfExists('procedures');
     }
 };
