@@ -49,6 +49,14 @@ class User extends Authenticatable{
         'dernier_connexion' => 'datetime',
     ];
 
+    public function getJWTIdentifier() {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims() {
+        return ['role' => $this->role]; // On ajoute le rôle dans le token !
+    }
+
     // --- RELATIONS ---
 
     // Association (1 à 0..*) : Un demandeur a plusieurs tickets

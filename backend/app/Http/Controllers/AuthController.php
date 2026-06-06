@@ -1,93 +1,54 @@
 <?php
-// app/Http/Controllers/AuthController.php
 
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Requests\Auth\LogoutRequest;
-use App\Services\Interfaces\AuthServiceInterface;
+use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
+use Exception;
 
 class AuthController extends Controller
 {
-    protected AuthServiceInterface $authService;
+    protected AuthService $authService;
 
-    public function __construct(AuthServiceInterface $authService)
+    public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
     }
 
-    public function login(LoginRequest $request): JsonResponse
-    {
-        $ip = $request->ip();
-        $credentials = $request->validated();
-
-        $result = $this->authService->login($credentials, $ip);
-
-        if (!$result) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email ou mot de passe incorrect'
-            ], 401);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Connexion réussie',
-            'data' => $result
-        ]);
-    }
-
-
     public function register(RegisterRequest $request): JsonResponse
     {
-        $data = $request->validated();
-
-        $result = $this->authService->register($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Inscription réussie',
-            'data' => $result
-        ], 201);
+        try {
+            $result = $this->authService->register($request->validated());
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Inscription réussie',
+                'user' => $result['user'],
+                'access_token' => $result['token'],
+                'token_type' => 'bearer'
+            ], 201);
+            
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
     }
 
-
-    public function logout(LogoutRequest $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $user = $request->user();
-        
-        $this->authService->logout($user);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Déconnexion réussie'
-        ]);
-    }
-
-    public function refresh(): JsonResponse
-    {
-        $user = auth()->guard('api')->user();
-        
-        $result = $this->authService->refresh($user);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Token rafraîchi avec succès',
-            'data' => $result
-        ]);
-    }
-
-    public function me(): JsonResponse
-    {
-        $user = auth()->guard('api')->user();
-        
-        $result = $this->authService->me($user);
-
-        return response()->json([
-            'success' => true,
-            'data' => $result
-        ]);
+        try {
+            $result = $this->authService->login($request->validated());
+            
+            return response()->json([
+                'status' => 'success',
+                'user' => $result['user'],
+                'access_token' => $result['token'],
+                'token_type' => 'bearer'
+            ], 200);
+            
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 400);
+        }
     }
 }
