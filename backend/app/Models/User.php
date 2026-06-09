@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Models;
-
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends Authenticatable{
+class User extends Authenticatable implements JWTSubject{
     use HasFactory, Notifiable;
 
     protected $table = 'users';
