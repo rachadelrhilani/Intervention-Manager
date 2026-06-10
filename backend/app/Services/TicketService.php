@@ -14,20 +14,26 @@ class TicketService
         $this->ticketRepository = $ticketRepository;
     }
 
-    public function storeTicket(array $data, int $demandeurId): Ticket
+   public function storeTicket(array $data, int $demandeurId): Ticket
     {
-        // Preparation des données obligatoires
-        $data['demandeur_id'] = $demandeurId;
-        $data['etat'] = 'Ouvert';
-        $data['origine'] = 'UtilisateurDirect';
+        // 1. Assignation des valeurs fixes du workflow
+        $ticketData = [
+            'titre' => $data['titre'],
+            'description' => $data['description'],
+            'demandeur_id' => $demandeurId,
+            'origine' => 'UtilisateurDirect',
+            'etat' => 'Ouvert',
+        ];
 
-        // etape de base : enregistrement en BDD
-        $ticket = $this->ticketRepository->create($data);
+        // 2. Mapping du champ Urgence provenant de React vers la BDD
+        $ticketData['urgence'] = $data['urgence_declaree'];
 
-        // PHASE 4 EN AVANCE :
-        // $this->automationEngine->applyRules($ticket);
-        // $this->llmAgentService->analyzeAndRoute($ticket);
+        // 3. Valeurs temporaires pour satisfaire les contraintes NOT NULL de la BDD
+        // (Ces valeurs seront écrasées intelligemment par l'IA en Phase 4)
+        $ticketData['impact'] = $data['urgence_declaree']; // Par défaut, on aligne l'impact initial sur l'urgence
+        $ticketData['type_demande'] = 'SansProcedure'; // Initialisé sans procédure avant l'analyse de l'IA
 
-        return $ticket;
+        // 4. Envoi au Repository pour insertion sans erreur
+        return $this->ticketRepository->create($ticketData);
     }
 }

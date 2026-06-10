@@ -37,7 +37,7 @@ class TicketController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Erreur lors de la création du ticket.'], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }

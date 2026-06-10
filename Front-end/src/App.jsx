@@ -10,9 +10,9 @@ import Home from './pages/public/Home';
 import Login from './pages/public/Login';
 import SignUp from './pages/public/SignUp';
 
-// Pages Prives
-
+// Pages Clients
 import ClientDashboard from './pages/demandeur/ClientDashboard';
+import CreateTicket from './pages/demandeur/CreateTicket';
 
 export default function App() {
   return (
@@ -32,7 +32,7 @@ export default function App() {
           
           {/* Composants temporaires en attendant la suite de la Phase 3 */}
           <Route path="dashboard" element={<ClientDashboard/>} />
-          <Route path="nouveau-ticket" element={<div className="text-2xl font-bold">Formulaire de création de ticket</div>} />
+          <Route path="nouveau-ticket" element={<CreateTicket />} />
           <Route path="tickets" element={<div className="text-2xl font-bold">Historique de vos demandes</div>} />
         </Route>
 

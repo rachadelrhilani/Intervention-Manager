@@ -13,10 +13,10 @@ const getAuthHeaders = () => {
 };
 
 export const ticketService = {
-    // Récupérer les statistiques et les tickets récents du demandeur connecté
+    // recuperer les statistiques et les tickets récents du demandeur connecté
     getDashboardData: async () => {
         try {
-            // Dans votre Laravel, cet endpoint retournera les compteurs et la liste
+            // endpoint
             const response = await axios.get(`${API_URL}/client/dashboard`, getAuthHeaders());
             return response.data;
         } catch (error) {

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientDashboardController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -13,4 +14,5 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     // les routes des clients
     Route::get('/client/dashboard', ClientDashboardController::class);
+    Route::post('/client/tickets', [TicketController::class, 'store']);
 });
