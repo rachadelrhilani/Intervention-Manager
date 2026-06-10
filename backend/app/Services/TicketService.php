@@ -16,15 +16,15 @@ class TicketService
 
     public function storeTicket(array $data, int $demandeurId): Ticket
     {
-        // Préparation des données obligatoires
+        // Preparation des données obligatoires
         $data['demandeur_id'] = $demandeurId;
         $data['etat'] = 'Ouvert';
         $data['origine'] = 'UtilisateurDirect';
 
-        // Étape de base : Enregistrement en BDD
+        // etape de base : enregistrement en BDD
         $ticket = $this->ticketRepository->create($data);
 
-        // 💡 PHASE 4 EN AVANCE :
+        // PHASE 4 EN AVANCE :
         // $this->automationEngine->applyRules($ticket);
         // $this->llmAgentService->analyzeAndRoute($ticket);
 
