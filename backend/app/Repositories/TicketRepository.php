@@ -37,4 +37,9 @@ class TicketRepository
             ->take($limit)
             ->get(['id', 'titre', 'priorite', 'etat', 'created_at']);
     }
+
+    public function create(array $data): Ticket
+    {
+        return Ticket::create($data);
+    }
 }

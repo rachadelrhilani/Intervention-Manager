@@ -19,7 +19,7 @@ class ClientDashboardController extends Controller
     public function __invoke(): JsonResponse
     {
         try {
-            // recuperation de l'utilisateur connecté via JWT
+            // recuperation de l'utilisateur connecte via JWT
             $user = Auth::guard('api')->user();
 
             // Appel de la logique métier via le Service
