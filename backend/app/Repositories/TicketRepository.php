@@ -27,6 +27,17 @@ class TicketRepository
             ->count();
     }
 
+
+    /**
+     * recupere les tickets d'un demandeur spécifique.
+     */
+    public function getAllByDemandeur(int $demandeurId): Collection
+    {
+        return Ticket::where('demandeur_id', $demandeurId)
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'titre', 'priorite', 'etat', 'created_at']);
+    }
+
     /**
      * Récupérer les derniers tickets d'un demandeur.
      */

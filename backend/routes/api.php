@@ -15,6 +15,8 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     // les routes des clients
     Route::get('/client/dashboard', ClientDashboardController::class);
+    Route::get('/client/tickets', [TicketController::class, 'index']);
+    Route::post('/client/tickets', [TicketController::class, 'store']);
     Route::get('/tickets/{id}/commentaires', [CommentaireController::class, 'index']);
     Route::post('/tickets/{id}/commentaires', [CommentaireController::class, 'store']);
 });

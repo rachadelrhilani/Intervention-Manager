@@ -14,7 +14,22 @@ class TicketService
         $this->ticketRepository = $ticketRepository;
     }
 
-   public function storeTicket(array $data, int $demandeurId): Ticket
+    public function getClientTicketsList(int $demandeurId): array
+    {
+        $tickets = $this->ticketRepository->getAllByDemandeur($demandeurId);
+
+        return $tickets->map(function ($ticket) {
+            return [
+                'id' => $ticket->id,
+                'titre' => $ticket->titre,
+                'priorite' => $ticket->priorite,
+                'etat' => $ticket->etat,
+                'created_at' => $ticket->created_at->format('Y-m-d H:i'),
+            ];
+        })->toArray();
+    }
+
+    public function storeTicket(array $data, int $demandeurId): Ticket
     {
         // 1. Assignation des valeurs fixes du workflow
         $ticketData = [

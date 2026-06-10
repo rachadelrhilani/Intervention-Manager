@@ -24,6 +24,15 @@ export const ticketService = {
         }
     },
 
+    
+    getAllTickets: async () => {
+        const token = localStorage.getItem('jwt_token');
+        const response = await axios.get(`${API_URL}/client/tickets`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
     createTicket: async (ticketData) => {
         const token = localStorage.getItem('jwt_token');
         try {

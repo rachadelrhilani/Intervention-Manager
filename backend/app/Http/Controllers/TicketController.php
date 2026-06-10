@@ -16,6 +16,19 @@ class TicketController extends Controller
         $this->ticketService = $ticketService;
     }
 
+    // GET /api/client/tickets
+    public function index(): JsonResponse
+    {
+        try {
+            $user = Auth::guard('api')->user();
+            $tickets = $this->ticketService->getClientTicketsList($user->id);
+
+            return response()->json($tickets, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Erreur lors du chargement des tickets.'], 500);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         // Validation rapide des entrées utilisateur
@@ -27,7 +40,7 @@ class TicketController extends Controller
 
         try {
             $user = Auth::guard('api')->user();
-            
+
             $ticket = $this->ticketService->storeTicket($validated, $user->id);
 
             return response()->json([
@@ -35,7 +48,6 @@ class TicketController extends Controller
                 'message' => 'Votre incident a été déclaré avec succès.',
                 'ticket' => $ticket
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json(['message' => 'Erreur lors de la création du ticket.'], 500);
         }
