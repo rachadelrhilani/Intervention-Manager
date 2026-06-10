@@ -14,19 +14,19 @@ class DashboardService
     }
 
     /**
-     * Prépare toutes les données du tableau de bord d'un client.
+     * Prepare toutes les données du tableau de bord d'un client.
      */
     public function getClientDashboardData(int $demandeurId): array
     {
-        // 1. Récupération des compteurs via le Repository
+        // recuperation des compteurs via le Repository
         $ouverts = $this->ticketRepository->countByEtat($demandeurId, 'Ouvert');
         $enCours = $this->ticketRepository->countByEtat($demandeurId, 'EnCours');
         $resolus = $this->ticketRepository->countTermines($demandeurId);
 
-        // 2. Récupération des tickets récents
+        // recuperation des tickets récents
         $tickets = $this->ticketRepository->getRecentByDemandeur($demandeurId, 5);
 
-        // 3. Transformation et formatage des données (Logique Métier)
+        // transformation et formatage des donnees
         $formattedTickets = $tickets->map(function ($ticket) {
             return [
                 'id' => $ticket->id,
