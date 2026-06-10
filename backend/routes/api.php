@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CommentaireController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientDashboardController;
 use App\Http\Controllers\TicketController;
@@ -14,5 +15,6 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     // les routes des clients
     Route::get('/client/dashboard', ClientDashboardController::class);
-    Route::post('/client/tickets', [TicketController::class, 'store']);
+    Route::get('/tickets/{id}/commentaires', [CommentaireController::class, 'index']);
+    Route::post('/tickets/{id}/commentaires', [CommentaireController::class, 'store']);
 });

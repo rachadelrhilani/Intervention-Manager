@@ -36,5 +36,28 @@ export const ticketService = {
         } catch (error) {
             throw error.response?.data || { message: "Erreur lors de l'envoi du ticket" };
         }
+    },
+    getTicketDetails: async (ticketId) => {
+        const token = localStorage.getItem('jwt_token');
+        const response = await axios.get(`${API_URL}/client/tickets/${ticketId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data; // Doit renvoyer les infos du ticket de base
+    },
+
+    getCommentaires: async (ticketId) => {
+        const token = localStorage.getItem('jwt_token');
+        const response = await axios.get(`${API_URL}/tickets/${ticketId}/commentaires`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    postCommentaire: async (ticketId, texte) => {
+        const token = localStorage.getItem('jwt_token');
+        const response = await axios.post(`${API_URL}/tickets/${ticketId}/commentaires`, { texte }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
     }
 };

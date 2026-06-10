@@ -13,6 +13,7 @@ import SignUp from './pages/public/SignUp';
 // Pages Clients
 import ClientDashboard from './pages/demandeur/ClientDashboard';
 import CreateTicket from './pages/demandeur/CreateTicket';
+import TicketDetail from './pages/demandeur/TicketDetail';
 
 export default function App() {
   return (
@@ -33,7 +34,7 @@ export default function App() {
           {/* Composants temporaires en attendant la suite de la Phase 3 */}
           <Route path="dashboard" element={<ClientDashboard/>} />
           <Route path="nouveau-ticket" element={<CreateTicket />} />
-          <Route path="tickets" element={<div className="text-2xl font-bold">Historique de vos demandes</div>} />
+          <Route path="tickets" element={<TicketDetail />} />
         </Route>
 
         {/* Sécurité Globale 404 */}
