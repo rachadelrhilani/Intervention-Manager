@@ -18,14 +18,13 @@ class CommentaireService
     {
         $comments = $this->commentaireRepository->getByTicketId($ticketId);
 
-        // Formatage pour le frontend React
         return $comments->map(function ($comment) {
             return [
                 'id' => $comment->id,
-                'texte' => $comment->texte,
-                'auteur_nom' => $comment->user->nom,
-                'auteur_role' => $comment->user->role,
-                'est_moi' => $comment->user_id === auth('api')->id(), // Permet à React d'aligner le message à droite ou à gauche
+                'texte' => $comment->contenu, 
+                'auteur_nom' => $comment->auteur ? $comment->auteur->nom : 'Anonyme',
+                'auteur_role' => $comment->auteur ? $comment->auteur->role : 'Client',
+                'est_moi' => $comment->user_id === auth('api')->id(), 
                 'created_at' => $comment->created_at->format('Y-m-d H:i')
             ];
         })->toArray();
@@ -34,7 +33,8 @@ class CommentaireService
     public function addMessage(string $texte, int $ticketId, int $userId): Commentaire
     {
         return $this->commentaireRepository->create([
-            'texte' => $texte,
+            // 💡 CORRECTION : On envoie la clé 'contenu' à la base de données
+            'contenu' => $texte, 
             'ticket_id' => $ticketId,
             'user_id' => $userId
         ]);

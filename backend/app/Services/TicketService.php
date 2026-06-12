@@ -51,4 +51,22 @@ class TicketService
         // 4. Envoi au Repository pour insertion sans erreur
         return $this->ticketRepository->create($ticketData);
     }
+
+    public function getTicketDetails(int $ticketId): array
+    {
+        $ticket = $this->ticketRepository->findById($ticketId);
+
+        if (!$ticket) {
+            throw new \Exception("Ticket introuvable", 404);
+        }
+
+        return [
+            'id' => $ticket->id,
+            'titre' => $ticket->titre,
+            'description' => $ticket->description,
+            'etat' => $ticket->etat,
+            'priorite' => $ticket->priorite, // Sera calculé en Phase 4
+            'traiteur_nom' => $ticket->traiteur ? $ticket->traiteur->nom : "Recherche d'agent..."
+        ];
+    }
 }

@@ -12,10 +12,10 @@ class CommentaireRepository
      */
     public function getByTicketId(int $ticketId): Collection
     {
-        return Commentaire::where('ticket_id', $ticketId)
-            ->with('user:id,nom,role') // Charge uniquement les colonnes nécessaires
-            ->orderBy('created_at', 'asc') // Chronologique
-            ->get();
+        return Commentaire::with('auteur')
+        ->where('ticket_id', $ticketId)
+        ->orderBy('created_at', 'asc')
+        ->get();
     }
 
     /**

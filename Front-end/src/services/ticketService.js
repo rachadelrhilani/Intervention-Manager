@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import api from './api';
 const API_URL = 'http://localhost:8000/api';
 
 // Fonction utilitaire pour récupérer le token JWT du localStorage
@@ -13,60 +13,47 @@ const getAuthHeaders = () => {
 };
 
 export const ticketService = {
-    // recuperer les statistiques et les tickets récents du demandeur connecté
+    // Recuperer les données du tableau de bord
     getDashboardData: async () => {
         try {
-            // endpoint
-            const response = await axios.get(`${API_URL}/client/dashboard`, getAuthHeaders());
+            const response = await api.get('/client/dashboard'); // Plus besoin de getAuthHeaders() !
             return response.data;
         } catch (error) {
             throw error.response?.data || { message: "Impossible de charger le tableau de bord" };
         }
     },
 
-    
+    // Recuperer tous les tickets
     getAllTickets: async () => {
-        const token = localStorage.getItem('jwt_token');
-        const response = await axios.get(`${API_URL}/client/tickets`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
+        try {
+            const response = await api.get('/client/tickets');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: "Impossible de charger la liste des tickets" };
+        }
     },
 
+    // Creer un nouveau ticket
     createTicket: async (ticketData) => {
-        const token = localStorage.getItem('jwt_token');
         try {
-            const response = await axios.post(
-                `${API_URL}/client/tickets`,
-                ticketData,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            const response = await api.post('/client/tickets', ticketData);
             return response.data;
         } catch (error) {
             throw error.response?.data || { message: "Erreur lors de l'envoi du ticket" };
         }
     },
     getTicketDetails: async (ticketId) => {
-        const token = localStorage.getItem('jwt_token');
-        const response = await axios.get(`${API_URL}/client/tickets/${ticketId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get(`/client/tickets/${ticketId}`);
         return response.data; // Doit renvoyer les infos du ticket de base
     },
 
     getCommentaires: async (ticketId) => {
-        const token = localStorage.getItem('jwt_token');
-        const response = await axios.get(`${API_URL}/tickets/${ticketId}/commentaires`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get(`/client/tickets/${ticketId}/commentaires`);
         return response.data;
     },
 
     postCommentaire: async (ticketId, texte) => {
-        const token = localStorage.getItem('jwt_token');
-        const response = await axios.post(`${API_URL}/tickets/${ticketId}/commentaires`, { texte }, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.post(`/client/tickets/${ticketId}/commentaires`, { texte });
         return response.data;
     }
 };

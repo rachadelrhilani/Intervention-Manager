@@ -73,7 +73,7 @@ export default function ClientDashboard() {
       {/* En-tête de bienvenue */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Bonjour, {user?.nom} 👋</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Bonjour, {user?.nom}</h1>
           <p className="text-sm text-slate-500 mt-1">Suivez l'état de vos incidents techniques en temps réel.</p>
         </div>
         <div className="flex gap-2">

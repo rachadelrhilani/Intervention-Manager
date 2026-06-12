@@ -68,13 +68,12 @@ export default function TicketDetail() {
   return (
     <div className="space-y-6">
       {/* Retour */}
-      <button onClick={() => navigate('/client/dashboard')} className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition">
+      <button onClick={() => navigate('/client/tickets')} className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition">
         <ArrowLeft className="h-4 w-4" /> Retour au Tableau de bord
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
-        {/* --- BLOC DE GAUCHE : DÉTAILS ET STATUT DU TICKET --- */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-5 shadow-sm">
           <div>
             <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase">Ticket #{ticket.id}</span>
@@ -99,7 +98,6 @@ export default function TicketDetail() {
           </div>
         </div>
 
-        {/* --- BLOC DE DROITE : LE FIL DE DISCUSSION (TCHAT) --- */}
         <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col h-[550px] overflow-hidden">
           {/* Header du tchat */}
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">

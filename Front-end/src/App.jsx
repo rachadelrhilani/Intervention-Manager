@@ -32,7 +32,6 @@ export default function App() {
           {/* Redirige par défaut /client vers le dashboard */}
           <Route index element={<Navigate to="/client/dashboard" replace />} />
           
-          {/* Composants temporaires en attendant la suite de la Phase 3 */}
           <Route path="dashboard" element={<ClientDashboard/>} />
           <Route path="nouveau-ticket" element={<CreateTicket />} />
           <Route path="tickets" element={<TicketsList />} />

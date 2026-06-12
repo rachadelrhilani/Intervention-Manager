@@ -49,6 +49,11 @@ class TicketRepository
             ->get(['id', 'titre', 'priorite', 'etat', 'created_at']);
     }
 
+    public function findById(int $id): ?Ticket
+    {
+        return Ticket::with('traiteur:id,nom')->find($id);
+    }
+
     public function create(array $data): Ticket
     {
         return Ticket::create($data);
