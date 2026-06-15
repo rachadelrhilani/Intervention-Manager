@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\AutomationService;
 use App\Services\TicketService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,12 +10,10 @@ use Illuminate\Support\Facades\Auth;
 class TicketController extends Controller
 {
     protected TicketService $ticketService;
-    protected AutomationService $automationService;
 
-    public function __construct(TicketService $ticketService,AutomationService $automationService)
+    public function __construct(TicketService $ticketService)
     {
         $this->ticketService = $ticketService;
-        $this->automationService = $automationService;
     }
 
     // GET /api/client/tickets
@@ -47,9 +44,6 @@ class TicketController extends Controller
             $user = Auth::guard('api')->user();
 
             $ticket = $this->ticketService->storeTicket($validated, $user->id);
-
-
-            $this->automationService->lancerAutomatisation($ticket);
 
             return response()->json([
                 'status' => 'success',

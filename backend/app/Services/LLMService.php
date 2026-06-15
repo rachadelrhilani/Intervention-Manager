@@ -20,18 +20,16 @@ class LLMService
         $this->baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent";
     }
 
-    /**
-     * Envoie un prompt au LLM Gemini et retourne sa réponse textuelle.
-     * * @param string $prompt Le message ou l'instruction textuelle
-     * @return string|null La réponse du LLM ou null en cas d'erreur
-     */
-    public function genererTexte(string $prompt): ?string
+
+    public function genererJson(string $prompt): ?string
     {
         try {
-            // Construction de la requête selon les spécifications de l'API Google Gemini
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("{$this->baseUrl}?key={$this->apiKey}", [
+            ])
+            ->retry(3, 200) // Retry up to 3 times, with a 200ms delay between attempts if it fails
+            ->timeout(60)   
+            ->post("{$this->baseUrl}?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -39,11 +37,11 @@ class LLMService
                         ]
                     ]
                 ],
-                // On peut ajouter des paramètres de configuration optionnels
+               
                 'generationConfig' => [
-                    'temperature' => 0.1, // Basse température pour des réponses stables et déterministes
+                    'temperature' => 0.1, 
                     'responseMimeType' => 'application/json',
-                    'maxOutputTokens' => 1000,
+                    'maxOutputTokens' => 2000,
                 ]
             ]);
 
@@ -52,7 +50,6 @@ class LLMService
                 return null;
             }
 
-            // Extraction de la réponse textuelle du JSON de Gemini
             $data = $response->json();
             return $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
