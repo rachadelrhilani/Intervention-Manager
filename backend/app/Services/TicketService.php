@@ -24,6 +24,36 @@ class TicketService
         $this->automationService = $automationService;
     }
 
+    public function getTechInbox(int $techId)
+    {
+        return $this->ticketRepository->getAssignedTicketsForTech($techId);
+    }
+
+
+    public function getTechDashboardData(int $techId): array
+    {
+        $stats = $this->ticketRepository->getTechStats($techId);
+        $recents = $this->ticketRepository->getRecentResolvedTickets($techId);
+
+        // Formater la liste des derniers tickets clos pour correspondre à ton composant React
+        $derniersTraites = $recents->map(function ($ticket) {
+            return [
+                'id' => $ticket->id,
+                'titre' => $ticket->titre,
+                'priorite' => $ticket->priorite,
+                'resolved_at' => $ticket->updated_at->diffForHumans() // Ex: "Il y a 2 heures", "Hier"
+            ];
+        });
+
+        return [
+            'tickets_resolus' => $stats['tickets_resolus'],
+            'temps_moyen_resolution' => $stats['temps_moyen_resolution'],
+            'taux_respect_sla' => $stats['taux_respect_sla'],
+            'urgents_actifs' => $stats['urgents_actifs'],
+            'derniers_traites' => $derniersTraites
+        ];
+    }
+
     public function getClientTicketsList(int $demandeurId): array
     {
         $tickets = $this->ticketRepository->getAllByDemandeur($demandeurId);
@@ -96,10 +126,10 @@ class TicketService
                     $dateLimite->addHours($sla->delai_heures)->addMinutes($sla->delai_minutes);
                     $ticket->sla_id = $sla->id;
                 } else {
-                    $dateLimite->addDays(2); 
+                    $dateLimite->addDays(2);
                 }
 
-                $ticket->priorite = $codeSla; 
+                $ticket->priorite = $codeSla;
                 $ticket->impact = $this->mapperPrioriteVersInt($qualificationIA['priorite']); // Convertit en entier (1 à 4)
                 $ticket->date_resolution_sla = $dateLimite;
                 $traiteurId = $this->trouverTraiteurDisponible($qualificationIA['specialite_traiteur']);
@@ -200,13 +230,73 @@ class TicketService
             'score_confiance'  => $confiance,
         ]);
     }
-
-
-    /*   private function injecterProceduresAutomatiques(Ticket $ticket): void
+    public function getTicketDetailsForResolution(int $ticketId): array
     {
-        if ($ticket->specialite_requise === 'Sécurité') {
-            // $ticket->taches()->create(['titre' => 'Isoler le poste du réseau', 'statut' => 'À faire']);
-            // $ticket->taches()->create(['titre' => 'Lancer une analyse antivirus approfondie', 'statut' => 'À faire']);
+        $ticket = $this->ticketRepository->findtickById($ticketId);
+        $comments = $this->ticketRepository->getMessagesByTicketId($ticketId);
+        $checklist = $this->ticketRepository->getChecklistByTicketId($ticketId);
+
+        // --- Construction dynamique du bloc IA notes ---
+        $iaNotes = "Aucune analyse prédictive calculée pour cet incident.";
+        
+        if ($ticket->predictions->isNotEmpty()) {
+            $phrases = [];
+            
+            $prioPred = $ticket->predictions->firstWhere('cible_prediction', 'Priorite');
+            if ($prioPred) {
+                $phrases[] = "Priorité estimée : [{$prioPred->valeur_predite}] (Confiance : {$prioPred->score_confiance}%).";
+            }
+
+            $slaPred = $ticket->predictions->firstWhere('cible_prediction', 'SLA');
+            if ($slaPred) {
+                $phrases[] = "Respect du SLA évalué à : {$slaPred->valeur_predite}.";
+            }
+
+            $traiteurPred = $ticket->predictions->firstWhere('cible_prediction', 'Traiteur');
+            if ($traiteurPred) {
+                $phrases[] = "Assignation suggérée : {$traiteurPred->valeur_predite}.";
+            }
+
+            if (!empty($phrases)) {
+                $iaNotes = "Analyse prédictive SmartSupport : " . implode(' ', $phrases);
+            }
         }
-    } */
+
+        return [
+            'ticket' => [
+                'id'         => $ticket->id,
+                'titre'      => $ticket->titre,
+                'priorite'   => $ticket->priorite,
+                'etat'       => $ticket->etat,
+                'equipement' => $ticket->type_demande, // Utilise la colonne adéquate
+                'zone'       => $ticket->origine,      // Utilise la colonne adéquate
+                'ia_notes'   => $iaNotes
+            ],
+            'messages'  => $comments,
+            'checklist' => $checklist
+        ];
+    }
+
+    /**
+     * Gère la création du commentaire métier.
+     */
+    public function storeTicketMessage(int $ticketId, int $userId, string $text): array
+    {
+        return $this->ticketRepository->createMessage($ticketId, $userId, $text);
+    }
+
+    /**
+     * Valide et ferme l'incident sous une transaction sécurisée.
+     */
+    public function markTicketAsResolved(int $ticketId, array $checklistFront)
+    {
+        return DB::transaction(function () use ($ticketId, $checklistFront) {
+            
+            // Log de traçabilité : on trace dans les logs du serveur les étapes cochées par l'humain
+            $checkedSteps = collect($checklistFront)->where('checked', true)->pluck('text')->implode(', ');
+            Log::info("Ticket #{$ticketId} clos par le technicien. Étapes validées : [{$checkedSteps}]");
+
+            return $this->ticketRepository->updateStatusToResolved($ticketId);
+        });
+    }
 }

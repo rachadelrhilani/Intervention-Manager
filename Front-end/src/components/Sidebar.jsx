@@ -6,7 +6,10 @@ import {
   PlusCircle, 
   History, 
   LogOut, 
-  User, 
+  Users, 
+  Sliders, 
+  Inbox, 
+  Wrench,
   Cpu 
 } from 'lucide-react';
 
@@ -19,38 +22,66 @@ export default function Sidebar() {
     navigate('/login');
   };
 
-  // Liens de navigation pour le Demandeur / Client
-  const navigationLinks = [
-    { name: 'Tableau de bord', to: '/client/dashboard', icon: LayoutDashboard },
-    { name: 'Nouveau Ticket', to: '/client/nouveau-ticket', icon: PlusCircle },
-    { name: 'Mes Demandes', to: '/client/tickets', icon: History },
-  ];
+  // 1. Définition des configurations spécifiques à chaque rôle
+  const roleConfigs = {
+    demandeur: {
+      badgeLabel: 'Client',
+      subText: user?.service || 'Général',
+      links: [
+        { name: 'Tableau de bord', to: '/client/dashboard', icon: LayoutDashboard },
+        { name: 'Nouveau Ticket', to: '/client/nouveau-ticket', icon: PlusCircle },
+        { name: 'Mes Demandes', to: '/client/tickets', icon: History },
+      ]
+    },
+    traiteur: {
+      badgeLabel: 'Technicien',
+      subText: user?.specialite || 'Support',
+      links: [
+        { name: 'Indicateurs / Stats', to: '/traiteur/dashboard', icon: LayoutDashboard },
+        { name: "File d'attente", to: '/traiteur/inbox', icon: Inbox },
+      ]
+    },
+    administrateur: {
+      badgeLabel: 'Admin',
+      subText: `Niveau ${user?.niveau_acces || 1}`,
+      links: [
+        { name: 'Statistiques Globales', to: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Gestion Utilisateurs', to: '/admin/utilisateurs', icon: Users },
+        { name: 'Configuration SLA', to: '/admin/sla', icon: Sliders },
+      ]
+    }
+  };
+
+  // Récupération de la configuration courante selon le rôle (fallback sur demandeur en sécurité)
+  const currentRole = user?.role || 'demandeur';
+  const currentConfig = roleConfigs[currentRole] || roleConfigs.demandeur;
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col h-screen sticky top-0 border-r border-slate-800">
-      {/* Header de la Sidebar */}
+      
+      {/* Header de la Sidebar avec Badge Dynamique */}
       <div className="h-16 flex items-center gap-2 px-6 border-b border-slate-800">
         <Cpu className="h-6 w-6 text-indigo-400" />
         <span className="font-bold text-lg text-white tracking-wide">SmartSupport</span>
-        <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-medium">
-          Client
+        <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-medium capitalize">
+          {currentConfig.badgeLabel}
         </span>
       </div>
 
-      {/* Profil Utilisateur Connecté */}
+      {/* Profil Utilisateur Connecté avec Sous-titre Métier Dynamique */}
       <div className="p-4 mx-3 my-4 bg-slate-800/40 rounded-xl border border-slate-800 flex items-center gap-3">
         <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-semibold uppercase shadow-md shadow-indigo-900/40">
           {user?.nom?.substring(0, 2) || 'U'}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white truncate">{user?.nom || 'Utilisateur'}</p>
-          <p className="text-xs text-slate-400 truncate">{user?.service || 'Général'}</p>
+          <p className="text-xs text-slate-400 truncate">{currentConfig.subText}</p>
         </div>
       </div>
 
-      {/* Liens de Navigation */}
+      {/* Liens de Navigation Dynamiques */}
       <nav className="flex-grow px-3 space-y-1">
-        {navigationLinks.map((link) => {
+        {currentConfig.links.map((link) => {
           const Icon = link.icon;
           return (
             <NavLink
@@ -71,7 +102,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Bouton Déconnexion (Bas de page) */}
+      {/* Bouton Déconnexion */}
       <div className="p-4 border-t border-slate-800">
         <button
           onClick={handleLogoutClick}

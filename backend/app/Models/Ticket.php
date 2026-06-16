@@ -58,6 +58,10 @@ class Ticket extends Model{
     public function procedure(){
         return $this->belongsTo(Procedure::class, 'procedure_id');
     }
+    public function predictions()
+    {
+        return $this->hasMany(Prediction::class, 'ticket_id');
+    }
 
     // Association N:M (0..* à 0..*) : Lié à plusieurs règles d'automatisation
     public function reglesAutomatisation(){

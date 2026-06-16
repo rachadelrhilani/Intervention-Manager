@@ -55,5 +55,41 @@ export const ticketService = {
     postCommentaire: async (ticketId, texte) => {
         const response = await api.post(`/client/tickets/${ticketId}/commentaires`, { texte });
         return response.data;
+    },
+
+
+    // Traiteur
+    getTechDashboardStats: async () => {
+        try {
+            const response = await api.get('/traiteur/dashboard-stats');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: "Impossible de charger les indicateurs de performance." };
+        }
+    },
+    getTechInbox: async () => {
+        try {
+            const response = await api.get('/traiteur/inbox');
+            return response.data; // Renvoie la réponse du serveur (contient .data)
+        } catch (error) {
+            throw error.response?.data || { message: "Impossible de charger la file d'attente du traiteur" };
+        }
+    },
+    // 1. Récupérer les détails d'un incident spécifique
+    getTicketById: async (id) => {
+        const response = await api.get(`/traiteur/tickets/${id}`);
+        return response.data; // Renvoie { status: 'success', data: {...} }
+    },
+
+    // 2. Envoyer un nouveau message sur le tchat
+    sendTicketMessage: async (id, messageText) => {
+        const response = await api.post(`/traiteur/tickets/${id}/messages`, { message: messageText });
+        return response.data;
+    },
+
+    // 3. Clôturer définitivement le ticket avec sa checklist
+    resolveTicket: async (id, checklist) => {
+        const response = await api.post(`/traiteur/tickets/${id}/resolve`, { checklist });
+        return response.data;
     }
 };

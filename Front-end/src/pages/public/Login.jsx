@@ -22,7 +22,7 @@ export default function Login() {
 
       // Redirection dynamique selon le rôle de l'acteur
       if (role === 'administrateur') navigate('/admin/dashboard');
-      else if (role === 'traiteur') navigate('/traiteur/tickets');
+      else if (role === 'traiteur') navigate('/traiteur/dashboard');
       else navigate('/client/dashboard'); // Pour le demandeur
 
     } catch (err) {

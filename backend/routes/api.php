@@ -21,4 +21,12 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::get('/client/tickets/{id}', [TicketController::class, 'show']);
     Route::get('/client/tickets/{id}/commentaires', [CommentaireController::class, 'index']);
     Route::post('/client/tickets/{id}/commentaires', [CommentaireController::class, 'store']);
+
+    // les routes de traiteur
+    Route::get('/traiteur/dashboard-stats', [TicketController::class, 'getTechDashboardStats']);
+    Route::get('/traiteur/inbox', [TicketController::class, 'myInbox']);
+
+    Route::get('/traiteur/tickets/{id}', [TicketController::class, 'getTicketForResolution']);
+    Route::post('/traiteur/tickets/{id}/messages', [TicketController::class, 'sendTicketMessage']);
+    Route::post('/traiteur/tickets/{id}/resolve', [TicketController::class, 'resolveTicket']);
 });
