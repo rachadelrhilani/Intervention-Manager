@@ -56,11 +56,11 @@ class TicketAgentService
         - Sécurité : Suspicion de virus, Phishing, perte de mot de passe suspecte, gestion des droits sensibles.
         - Applications Métiers : ERP, Logiciel de Paie/Compta (Sage, Cegid), CRM.
         - Matériel : Imprimante en panne, écran cassé, problème physique de PC/Téléphone.
-        - Électrique (OCP) : Problèmes sur armoires électriques, disjoncteurs, alimentations industrielles, variateurs de vitesse, moteurs électriques.
-        - Mécanique (OCP) : Panne sur convoyeurs, broyeurs, pompes, réducteurs, maintenance préventive ou corrective d'équipements mécaniques.
-        - Instrumentation & Contrôle (OCP) : Capteurs, régulateurs, automates (PLC), systèmes de contrôle-commande (SCADA), vannes automatiques.
-        - Procédés & Production (OCP) : Anomalies sur chaîne de production, qualité produit, paramètres fours, ateliers de traitement du phosphate.
-        - Logistique & Manutention (OCP) : Problèmes sur chariots élévateurs, quais de chargement, stockeurs, bandes transporteuses, gestion des stocks.
+        - Électrique : Problèmes sur armoires électriques, disjoncteurs, alimentations industrielles, variateurs de vitesse, moteurs électriques.
+        - Mécanique : Panne sur convoyeurs, broyeurs, pompes, réducteurs, maintenance préventive ou corrective d'équipements mécaniques.
+        - Instrumentation & Contrôle : Capteurs, régulateurs, automates (PLC), systèmes de contrôle-commande (SCADA), vannes automatiques.
+        - Procédés & Production : Anomalies sur chaîne de production, qualité produit, paramètres fours, ateliers de traitement du phosphate.
+        - Logistique & Manutention : Problèmes sur chariots élévateurs, quais de chargement, stockeurs, bandes transporteuses, gestion des stocks.
         ";
 
         // Appel du LLM configuré en mode JSON strict

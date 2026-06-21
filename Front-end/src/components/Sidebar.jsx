@@ -6,11 +6,10 @@ import {
   PlusCircle, 
   History, 
   LogOut, 
+  Inbox,
   Users, 
-  Sliders, 
-  Inbox, 
-  Wrench,
-  Cpu 
+  Cpu,
+  FileSpreadsheet
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -41,13 +40,14 @@ export default function Sidebar() {
         { name: "File d'attente", to: '/traiteur/inbox', icon: Inbox },
       ]
     },
-    administrateur: {
-      badgeLabel: 'Admin',
-      subText: `Niveau ${user?.niveau_acces || 1}`,
+    // Le bloc 'administrateur' a été renommé et configuré pour le rôle 'gestionnaire'
+    gestionnaire: {
+      badgeLabel: 'Gestionnaire',
+      subText: user?.service_supervision || 'Superviseur SLA',
       links: [
-        { name: 'Statistiques Globales', to: '/admin/dashboard', icon: LayoutDashboard },
-        { name: 'Gestion Utilisateurs', to: '/admin/utilisateurs', icon: Users },
-        { name: 'Configuration SLA', to: '/admin/sla', icon: Sliders },
+        { name: 'Performances & IA', to: '/gestionnaire/dashboard', icon: LayoutDashboard },
+        { name: 'Registre des Tickets', to: '/gestionnaire/tickets', icon: FileSpreadsheet },
+        { name: 'Gestion Utilisateurs', to: '/gestionnaire/utilisateurs', icon: Users }
       ]
     }
   };

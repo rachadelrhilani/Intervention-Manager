@@ -299,4 +299,40 @@ class TicketService
             return $this->ticketRepository->updateStatusToResolved($ticketId);
         });
     }
+    public function getAllTicketsPaginated($perPage = 15): array
+    {
+        $paginatedTickets = $this->ticketRepository->getAllTicketsWithRelations($perPage);
+
+        // Transformation des données de la page en cours
+        $formattedItems = collect($paginatedTickets->items())->map(function($ticket) {
+            
+            // Calcul de la moyenne de confiance des prédictions IA sur ce ticket
+            $avgConfidence = $ticket->predictions->avg('score_confiance');
+
+            return [
+                'id'             => $ticket->id,
+                'titre'          => $ticket->titre,
+                'demandeur'      => $ticket->demandeur->nom ?? 'Inconnu',
+                'technicien'     => $ticket->traiteur->nom ?? 'Non assigné',
+                'type'           => $ticket->type_demande, // Ex: "AvecProcedure" ou "Standard"
+                'origine'        => $ticket->origine,      // Ex: "Web", "Email"
+                'priorite'       => $ticket->priorite ?? 'P4',
+                'etat'           => $ticket->etat,         // Ex: "Ouvert", "EnCours", "Resolu"
+                'activite_tchat' => $ticket->commentaires_count,
+                'ia_confiance'   => $avgConfidence ? round($avgConfidence, 1) . '%' : 'N/A',
+                'cree_le'        => $ticket->created_at->format('d/m/Y H:i')
+            ];
+        });
+
+        // Retourne la structure attendue par React pour gérer la pagination
+        return [
+            'tickets' => $formattedItems,
+            'pagination' => [
+                'current_page' => $paginatedTickets->currentPage(),
+                'last_page'    => $paginatedTickets->lastPage(),
+                'per_page'     => $paginatedTickets->perPage(),
+                'total'        => $paginatedTickets->total(),
+            ]
+        ];
+    }
 }

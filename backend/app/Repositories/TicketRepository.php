@@ -99,9 +99,9 @@ class TicketRepository
     public function getAssignedTicketsForTech(int $techId)
     {
         return Ticket::where('traiteur_id', $techId)
-            ->whereIn('etat', ['Ouvert', 'EnCours', 'Escalade']) 
+            ->whereIn('etat', ['Ouvert', 'EnCours', 'Escalade'])
             ->orderBy('priorite', 'asc')
-            ->orderBy('date_resolution_sla', 'asc') 
+            ->orderBy('date_resolution_sla', 'asc')
             ->get();
     }
 
@@ -122,7 +122,7 @@ class TicketRepository
             ->where('ticket_id', $ticketId)
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(function($com) use ($currentUserId) {
+            ->map(function ($com) use ($currentUserId) {
                 return [
                     'id'          => $com->id,
                     'sender'      => $com->user_id === $currentUserId ? 'tech' : 'client',
@@ -146,12 +146,12 @@ class TicketRepository
         }
 
         // 'etapes' est automatiquement converti en array PHP grâce au cast du modèle Procedure
-        return collect($ticket->procedure->etapes)->map(function($etapeText, $index) {
+        return collect($ticket->procedure->etapes)->map(function ($etapeText, $index) {
             return [
                 'id'          => $index + 1,
                 'text'        => $etapeText,
-                'checked'     => false, 
-                'obligatoire' => true 
+                'checked'     => false,
+                'obligatoire' => true
             ];
         })->values()->all();
     }
@@ -186,5 +186,22 @@ class TicketRepository
         $ticket->save();
 
         return $ticket;
+    }
+
+    public function getAllTicketsWithRelations($perPage = 15)
+    {
+        return Ticket::with(['procedure', 'predictions'])
+            ->select('id', 'titre', 'type_demande', 'origine', 'priorite', 'etat', 'created_at', 'demandeur_id', 'traiteur_id')
+            ->with([
+                'demandeur' => function ($query) {
+                    $query->select('id', 'nom');
+                },
+                'traiteur'  => function ($query) {
+                    $query->select('id', 'nom');
+                }
+            ])
+            ->withCount('commentaires')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
     }
 }

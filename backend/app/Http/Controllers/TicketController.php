@@ -207,4 +207,36 @@ class TicketController extends Controller
             ], 500);
         }
     }
+
+    public function getAllTickets(Request $request): JsonResponse
+    {
+        Log::info("--- API Gestionnaire : Extraction du registre global des incidents ---");
+        
+        try {
+            // Sécurité double-check : Vérification du rôle (en plus du middleware de route)
+            if (auth('api')->user()->role !== 'gestionnaire') {
+                return response()->json([
+                    'status' => 'error', 
+                    'message' => 'Droits insuffisants pour accéder au registre central.'
+                ], 403);
+            }
+
+            $perPage = $request->query('per_page', 15);
+
+            $data = $this->ticketService->getAllTicketsPaginated($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data'   => $data
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error("Erreur critique dans GestionnaireController@getAllTickets : " . $e->getMessage());
+            
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Une erreur interne a empêché la génération du tableau des incidents.'
+            ], 500);
+        }
+    }
 }
