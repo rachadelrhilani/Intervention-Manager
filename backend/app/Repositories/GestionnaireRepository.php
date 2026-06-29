@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\SLA;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -80,5 +81,21 @@ class GestionnaireRepository
     public function createUser(array $data)
     {
         return User::create($data);
+    }
+
+    public function getSlaConfigurations()
+    {
+        return SLA::orderBy('priorite', 'asc')->get();
+    }
+
+    /**
+     * Met à jour une règle selon la priorité
+     */
+    public function updateOrCreateSla(string $priorite, array $data)
+    {
+        return SLA::updateOrCreate(
+            ['priorite' => $priorite],
+            $data
+        );
     }
 }

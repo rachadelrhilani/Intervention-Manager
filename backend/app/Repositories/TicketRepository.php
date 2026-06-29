@@ -204,4 +204,36 @@ class TicketRepository
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }
+
+    public function save(Ticket $ticket): bool
+    {
+        return $ticket->save();
+    }
+
+    public function delete(Ticket $ticket): bool
+    {
+        return $ticket->delete();
+    }
+
+
+    public function getOpenTicketsByTraiteur(INT $traiteurId)
+    {
+        return Ticket::where('traiteur_id', $traiteurId)
+                     ->whereIn('etat', ['Ouvert', 'EnCours'])
+                     ->get();
+    }
+
+    /**
+     * Réassigner le ticket à un nouveau traiteur.
+     */
+    public function updateAssignment(INT $ticketId, INT $nouveauTraiteurId)
+    {
+        $ticket = Ticket::find($ticketId);
+        if ($ticket) {
+            $ticket->traiteur_id = $nouveauTraiteurId;
+            $ticket->save();
+            return $ticket;
+        }
+        return null;
+    }
 }

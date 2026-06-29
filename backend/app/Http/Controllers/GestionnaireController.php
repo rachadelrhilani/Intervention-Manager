@@ -36,7 +36,6 @@ class GestionnaireController extends Controller
                 'status' => 'success',
                 'data'   => $stats
             ], 200);
-
         } catch (Exception $e) {
             Log::error("Erreur critique GestionnaireController : " . $e->getMessage());
             return response()->json([
@@ -49,7 +48,7 @@ class GestionnaireController extends Controller
     {
         try {
             $users = $this->gestionnaireService->getUserList();
-            
+
             return response()->json([
                 'status' => 'success',
                 'data'   => $users
@@ -115,7 +114,6 @@ class GestionnaireController extends Controller
                     'email' => $traiteur->email
                 ]
             ], 201);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'status'  => 'error',
@@ -125,6 +123,53 @@ class GestionnaireController extends Controller
         } catch (\Exception $e) {
             Log::error("Erreur création technicien : " . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Échec de l\'insertion en base de données.'], 500);
+        }
+    }
+
+    public function getSlaConfigs(): JsonResponse
+    {
+        try {
+            if (auth('api')->user()->role !== 'gestionnaire') {
+                return response()->json(['status' => 'error', 'message' => 'Accès interdit.'], 403);
+            }
+
+            $sla = $this->gestionnaireService->getSlaList();
+
+            return response()->json([
+                'status' => 'success',
+                'data'   => $sla
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error("Erreur lecture table slas : " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Erreur de lecture des SLAs.'], 500);
+        }
+    }
+
+    /**
+     * PUT /api/gestionnaire/sla
+     */
+    public function updateSlaConfigs(Request $request): JsonResponse
+    {
+        try {
+            if (auth('api')->user()->role !== 'gestionnaire') {
+                return response()->json(['status' => 'error', 'message' => 'Accès interdit.'], 403);
+            }
+
+            $request->validate([
+                'sla' => 'required|array',
+                'sla.*.priorite' => 'required|string',
+            ]);
+
+            $updatedSla = $this->gestionnaireService->saveSlaSettings($request->input('sla'));
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Modèle SLA mis à jour en base de données.',
+                'data'    => $updatedSla
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error("Erreur écriture table slas : " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Échec de la sauvegarde des règles SLA.'], 500);
         }
     }
 }

@@ -10,7 +10,9 @@ import {
   User, 
   Clock, 
   ArrowLeft,
-  CheckCircle2
+  CheckCircle2,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 
 export default function TicketResolve() {
@@ -29,6 +31,18 @@ export default function TicketResolve() {
   const [error, setError] = useState(null);
   const chatEndRef = useRef(null);
 
+  // Modification & Suppression
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    titre: '',
+    description: '',
+    priorite: 'P3',
+    impact: 3,
+    urgence: 3
+  });
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState(null);
+
   // 1. CHARGEMENT DES DONNÉES DEPUIS LE BACK-END
   useEffect(() => {
     const fetchTicketDetails = async () => {
@@ -44,6 +58,13 @@ export default function TicketResolve() {
           setTicket(response.data.ticket);
           setMessages(response.data.messages || []);
           setChecklist(response.data.checklist || []);
+          setEditFormData({
+            titre: response.data.ticket.titre || '',
+            description: response.data.ticket.description || '',
+            priorite: response.data.ticket.priorite || 'P3',
+            impact: response.data.ticket.impact || 3,
+            urgence: response.data.ticket.urgence || 3
+          });
         } else {
           throw new Error("Le format de réponse renvoyé par le serveur est incorrect.");
         }
@@ -120,6 +141,54 @@ export default function TicketResolve() {
     }
   };
 
+  const handleDeleteTicket = async () => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer définitivement cet incident ?")) {
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const response = await ticketService.deleteTicket(id);
+      if (response && response.status === 'success') {
+        alert("L'incident a été supprimé avec succès.");
+        navigate('/traiteur/inbox');
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Une erreur est survenue lors de la suppression.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditSubmitting(true);
+    setEditError(null);
+
+    try {
+      const response = await ticketService.updateTicket(id, editFormData);
+      if (response && response.status === 'success') {
+        // Mettre à jour l'état local du ticket avec les nouvelles valeurs retournées
+        setTicket(prev => ({
+          ...prev,
+          titre: response.ticket.titre,
+          description: response.ticket.description,
+          priorite: response.ticket.priorite,
+          impact: response.ticket.impact,
+          urgence: response.ticket.urgence
+        }));
+        setIsEditModalOpen(false);
+        alert("Incident mis à jour avec succès.");
+      }
+    } catch (err) {
+      console.error(err);
+      setEditError(err.message || "Une erreur est survenue lors de la sauvegarde.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   if (loading) return <div className="p-8 text-center text-slate-500 font-medium">Connexion au serveur et chargement de l'incident #{id}...</div>;
   if (error) return <div className="p-8 text-center text-red-500 font-bold">⚠️ Erreur de chargement : {error}</div>;
   if (!ticket) return <div className="p-8 text-center text-slate-500">Aucune donnée trouvée pour cet incident.</div>;
@@ -148,6 +217,24 @@ export default function TicketResolve() {
         </div>
 
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+          {['Ouvert', 'EnCours', 'Escalade'].includes(ticket.etat) && (
+            <>
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg text-amber-700 transition cursor-pointer text-xs font-bold animate-fadeIn"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Modifier
+              </button>
+              <button
+                onClick={handleDeleteTicket}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg text-rose-700 transition cursor-pointer text-xs font-bold animate-fadeIn"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Supprimer
+              </button>
+            </>
+          )}
           <span className="bg-slate-200/70 px-3 py-1.5 rounded-lg border border-slate-300/40">📍 {ticket.zone}</span>
           <span className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg border border-indigo-100">⚙️ {ticket.equipement}</span>
         </div>
@@ -158,6 +245,18 @@ export default function TicketResolve() {
         {/* COLONNE GAUCHE : DIAGNOSTIC IA & TCHAT */}
         <div className="lg:col-span-2 space-y-6">
           
+          {/* Bloc Description de l'incident */}
+          {ticket.description && (
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-2">
+                Description de l'Incident
+              </h3>
+              <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-line font-medium">
+                {ticket.description}
+              </p>
+            </div>
+          )}
+
           {/* Bloc IA Note */}
           {ticket.ia_notes && (
             <div className="bg-gradient-to-r from-indigo-900 to-slate-900 text-white rounded-2xl p-5 shadow-sm relative overflow-hidden">
@@ -292,6 +391,114 @@ export default function TicketResolve() {
         </div>
 
       </div>
-    </div>
-  );
+
+    {/* Modal d'édition */}
+    {isEditModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden animate-fadeIn">
+          <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+            <h3 className="text-md font-bold text-slate-950">Modifier l'Incident #{ticket.id}</h3>
+            <button 
+              onClick={() => setIsEditModalOpen(false)}
+              className="text-slate-400 hover:text-slate-600 text-sm font-bold"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+            {editError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl text-xs font-semibold">
+                {editError}
+              </div>
+            )}
+            
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Titre de l'incident</label>
+              <input
+                type="text"
+                required
+                value={editFormData.titre}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, titre: e.target.value }))}
+                className="w-full text-xs font-medium border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Description de l'incident</label>
+              <textarea
+                required
+                rows={4}
+                value={editFormData.description}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
+                className="w-full text-xs font-medium border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Priorité</label>
+                <select
+                  value={editFormData.priorite}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, priorite: e.target.value }))}
+                  className="w-full text-xs font-semibold border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500 bg-white"
+                >
+                  <option value="P1">P1 (Critique)</option>
+                  <option value="P2">P2 (Haute)</option>
+                  <option value="P3">P3 (Moyenne)</option>
+                  <option value="P4">P4 (Basse)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Urgence</label>
+                <select
+                  value={editFormData.urgence}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, urgence: parseInt(e.target.value) }))}
+                  className="w-full text-xs font-semibold border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500 bg-white"
+                >
+                  <option value={1}>1 (Critique)</option>
+                  <option value={2}>2 (Haute)</option>
+                  <option value={3}>3 (Moyenne)</option>
+                  <option value={4}>4 (Basse)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Impact</label>
+                <select
+                  value={editFormData.impact}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, impact: parseInt(e.target.value) }))}
+                  className="w-full text-xs font-semibold border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500 bg-white"
+                >
+                  <option value={1}>1 (Critique)</option>
+                  <option value={2}>2 (Haute)</option>
+                  <option value={3}>3 (Moyenne)</option>
+                  <option value={4}>4 (Basse)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 mt-4">
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-bold transition"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                disabled={editSubmitting}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md shadow-indigo-600/10 transition disabled:opacity-50"
+              >
+                {editSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+  </div>
+);
 }

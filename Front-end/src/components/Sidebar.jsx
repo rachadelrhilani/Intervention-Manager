@@ -1,15 +1,18 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  LayoutDashboard, 
-  PlusCircle, 
-  History, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  PlusCircle,
+  History,
+  LogOut,
   Inbox,
-  Users, 
+  Users,
   Cpu,
-  FileSpreadsheet
+  FileSpreadsheet,
+  User,
+  ArrowUpCircle,
+  Sliders
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -30,6 +33,7 @@ export default function Sidebar() {
         { name: 'Tableau de bord', to: '/client/dashboard', icon: LayoutDashboard },
         { name: 'Nouveau Ticket', to: '/client/nouveau-ticket', icon: PlusCircle },
         { name: 'Mes Demandes', to: '/client/tickets', icon: History },
+        { name: 'Mon Profil', to: '/client/profile', icon: User },
       ]
     },
     traiteur: {
@@ -38,6 +42,8 @@ export default function Sidebar() {
       links: [
         { name: 'Indicateurs / Stats', to: '/traiteur/dashboard', icon: LayoutDashboard },
         { name: "File d'attente", to: '/traiteur/inbox', icon: Inbox },
+        { name: 'Escalader un Ticket', to: '/traiteur/escalade', icon: ArrowUpCircle },
+        { name: 'Mon Profil', to: '/traiteur/profile', icon: User },
       ]
     },
     // Le bloc 'administrateur' a été renommé et configuré pour le rôle 'gestionnaire'
@@ -47,7 +53,9 @@ export default function Sidebar() {
       links: [
         { name: 'Performances & IA', to: '/gestionnaire/dashboard', icon: LayoutDashboard },
         { name: 'Registre des Tickets', to: '/gestionnaire/tickets', icon: FileSpreadsheet },
-        { name: 'Gestion Utilisateurs', to: '/gestionnaire/utilisateurs', icon: Users }
+        { name: 'Gestion Utilisateurs', to: '/gestionnaire/utilisateurs', icon: Users },
+        { name: 'Configuration SLA', to: '/gestionnaire/sla', icon: Sliders },
+        { name: 'Mon Profil', to: '/gestionnaire/profile', icon: User },
       ]
     }
   };
@@ -58,7 +66,7 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col h-screen sticky top-0 border-r border-slate-800">
-      
+
       {/* Header de la Sidebar avec Badge Dynamique */}
       <div className="h-16 flex items-center gap-2 px-6 border-b border-slate-800">
         <Cpu className="h-6 w-6 text-indigo-400" />
@@ -88,10 +96,9 @@ export default function Sidebar() {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 group ${
-                  isActive
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10'
-                    : 'hover:bg-slate-800/60 hover:text-white text-slate-400'
+                `flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 group ${isActive
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10'
+                  : 'hover:bg-slate-800/60 hover:text-white text-slate-400'
                 }`
               }
             >

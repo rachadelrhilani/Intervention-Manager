@@ -91,5 +91,61 @@ export const ticketService = {
     resolveTicket: async (id, checklist) => {
         const response = await api.post(`/traiteur/tickets/${id}/resolve`, { checklist });
         return response.data;
+    },
+
+    // 4. Modifier le ticket (Technicien)
+    updateTicket: async (id, ticketData) => {
+        try {
+            const response = await api.put(`/traiteur/tickets/${id}`, ticketData);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: "Impossible de modifier le ticket." };
+        }
+    },
+
+    // 5. Supprimer le ticket (Technicien)
+    deleteTicket: async (id) => {
+        try {
+            const response = await api.delete(`/traiteur/tickets/${id}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: "Impossible de supprimer le ticket." };
+        }
+    },
+
+
+
+    // liste des tickets
+    getMesTickets: async () => {
+        try {
+            const response = await api.get('/traiteur/mes-tickets');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: "Impossible de charger vos tickets pour l'escalade." };
+        }
+    },
+
+    // 7. Récupérer la liste des autres techniciens qualifiés
+    getListeCollegues: async () => {
+        try {
+            const response = await api.get('/traiteur/liste-collegues');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: "Impossible de récupérer la liste des collaborateurs." };
+        }
+    },
+
+    // 8. Envoyer l'ordre d'escalade au Service Laravel
+    escaladerTicket: async (ticketId, nouveauTraiteurId, motif) => {
+        try {
+            const response = await api.post('/traiteur/escalader', {
+                ticket_id: ticketId,
+                nouveau_traiteur_id: nouveauTraiteurId,
+                motif: motif
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: "La procédure d'escalade a échoué." };
+        }
     }
 };

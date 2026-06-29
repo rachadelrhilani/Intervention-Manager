@@ -148,7 +148,7 @@ class TicketController extends Controller
     /**
      * POST /api/traiteur/tickets/{id}/messages
      */
-    public function sendTicketMessage(Request $request, $id): JsonResponse
+    public function sendTicketMessage(Request $request, int $id): JsonResponse
     {
         Log::info("--- Début de requête : sendTicketMessage pour l'ID #{$id} ---");
         try {
@@ -184,7 +184,7 @@ class TicketController extends Controller
     /**
      * POST /api/traiteur/tickets/{id}/resolve
      */
-    public function resolveTicket(Request $request, $id): JsonResponse
+    public function resolveTicket(Request $request, int $id): JsonResponse
     {
         Log::info("--- Début de requête : resolveTicket pour l'ID #{$id} ---");
         try {
@@ -237,6 +237,57 @@ class TicketController extends Controller
                 'status'  => 'error',
                 'message' => 'Une erreur interne a empêché la génération du tableau des incidents.'
             ], 500);
+        }
+    }
+
+    public function updateTicket(Request $request, int $id): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Non authentifié.'], 401);
+        }
+
+        $validated = $request->validate([
+            'titre' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'priorite' => 'sometimes|required|string|in:P1,P2,P3,P4',
+            'impact' => 'sometimes|required|integer|between:1,4',
+            'urgence' => 'sometimes|required|integer|between:1,4',
+        ]);
+
+        try {
+            $ticket = $this->ticketService->updateTicketForTech($id, $validated, $user->id);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Incident mis à jour avec succès.',
+                'ticket' => $ticket
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function deleteTicket(int $id): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Non authentifié.'], 401);
+        }
+
+        try {
+            $this->ticketService->deleteTicketForTech($id, $user->id);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Incident supprimé avec succès.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 422);
         }
     }
 }

@@ -52,5 +52,24 @@ export const gestionnaireService = {
             return response.data.data;
         }
         throw new Error("Échec de la création du compte technicien.");
+    },
+
+    getSlaConfigs: async () => {
+        const response = await api.get('/gestionnaire/sla');
+        if (response.data && response.data.status === 'success') {
+            return response.data.data;
+        }
+        throw new Error("Impossible de charger les configurations SLA.");
+    },
+
+    /**
+     * Met à jour les seuils de temps d'une ou plusieurs priorités
+     */
+    updateSlaConfigs: async (slaData) => {
+        const response = await api.put('/gestionnaire/sla', { sla: slaData });
+        if (response.data && response.data.status === 'success') {
+            return response.data.data;
+        }
+        throw new Error("Échec de la mise à jour des règles SLA.");
     }
 };

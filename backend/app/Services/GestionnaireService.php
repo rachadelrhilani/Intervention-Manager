@@ -104,4 +104,31 @@ class GestionnaireService
 
         return $this->gestionnaireRepository->createUser($payload);
     }
+    public function getSlaList()
+    {
+        return $this->gestionnaireRepository->getSlaConfigurations();
+    }
+
+    /**
+     * Sauvegarde en adaptant les données à ton modèle Sla
+     */
+    public function saveSlaSettings(array $slaArray)
+    {
+        foreach ($slaArray as $slaItem) {
+            // Exemple de calcul : si React envoie un temps de résolution global en minutes
+            $totalMinutes = $slaItem['temps_resolution_minutes'] ?? 60;
+            
+            $heures = floor($totalMinutes / 60);
+            $minutesRestantes = $totalMinutes % 60;
+
+            $this->gestionnaireRepository->updateOrCreateSla($slaItem['priorite'], [
+                'delai_heures'       => $heures,
+                'delai_minutes'      => $minutesRestantes,
+                'unite'              => $heures > 0 ? 'Heures' : 'Minutes',
+                'seuil_notification' => $slaItem['seuil_notification'] ?? 15, // Seuil d'alerte avant retard
+            ]);
+        }
+
+        return $this->getSlaList();
+    }
 }

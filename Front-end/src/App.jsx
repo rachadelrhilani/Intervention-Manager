@@ -22,12 +22,17 @@ import TicketsList from './pages/demandeur/TicketsList';
 // Pages Traiteurs
 import TicketInbox from './pages/traiteur/TicketInbox';
 import TicketResolve from './pages/traiteur/TicketResolve';
+import EscaladeTicket from './pages/Traiteur/EscaladeTicket';
 import TechDashboard from './pages/traiteur/TechDashboard';
 
 // Pages Gestionnaires
 import GestionnaireDashboard from './pages/gestionnaire/GestionnaireDashboard';
 import GestionnaireTicketsList from './pages/gestionnaire/GestionnaireTicketsList';
 import UserManagement from './pages/gestionnaire/UserManagement';
+import SlaConfig from './pages/gestionnaire/SlaConfig';
+// Pages profile
+import Profile from './pages/shared/Profile';
+
 
 export default function App() {
     return (
@@ -49,6 +54,7 @@ export default function App() {
                         <Route path="nouveau-ticket" element={<CreateTicket />} />
                         <Route path="tickets" element={<TicketsList />} />
                         <Route path="tickets/:id" element={<TicketDetail />} />
+                        <Route path="profile" element={<Profile />} />
                     </Route>
                 </Route>
 
@@ -59,6 +65,8 @@ export default function App() {
                         <Route path="dashboard" element={<TechDashboard />} />
                         <Route path="ticket/:id" element={<TicketResolve />} />
                         <Route path="inbox" element={<TicketInbox />} />
+                        <Route path="escalade" element={<EscaladeTicket />} />
+                        <Route path="profile" element={<Profile />} />
                     </Route>
                 </Route>
 
@@ -69,6 +77,8 @@ export default function App() {
                         <Route path="dashboard" element={<GestionnaireDashboard />} />
                         <Route path="tickets" element={<GestionnaireTicketsList />} /> 
                         <Route path="utilisateurs" element={<UserManagement />} /> 
+                        <Route path="sla" element={<SlaConfig />} />
+                        <Route path="profile" element={<Profile />} />
                     </Route>
                 </Route>
 

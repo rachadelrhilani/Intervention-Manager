@@ -11,7 +11,7 @@ class CheckRole
     /**
      * Gère la sécurité des requêtes entrantes en filtrant par rôle.
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (!auth('api')->check()) {
             return response()->json([

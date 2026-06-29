@@ -264,13 +264,16 @@ class TicketService
 
         return [
             'ticket' => [
-                'id'         => $ticket->id,
-                'titre'      => $ticket->titre,
-                'priorite'   => $ticket->priorite,
-                'etat'       => $ticket->etat,
-                'equipement' => $ticket->type_demande, // Utilise la colonne adéquate
-                'zone'       => $ticket->origine,      // Utilise la colonne adéquate
-                'ia_notes'   => $iaNotes
+                'id'          => $ticket->id,
+                'titre'       => $ticket->titre,
+                'description' => $ticket->description,
+                'priorite'    => $ticket->priorite,
+                'impact'      => $ticket->impact,
+                'urgence'     => $ticket->urgence,
+                'etat'        => $ticket->etat,
+                'equipement'  => $ticket->type_demande, // Utilise la colonne adéquate
+                'zone'        => $ticket->origine,      // Utilise la colonne adéquate
+                'ia_notes'    => $iaNotes
             ],
             'messages'  => $comments,
             'checklist' => $checklist
@@ -334,5 +337,66 @@ class TicketService
                 'total'        => $paginatedTickets->total(),
             ]
         ];
+    }
+
+    public function updateTicketForTech(int $ticketId, array $data, int $userId): Ticket
+    {
+        $ticket = $this->ticketRepository->findById($ticketId);
+
+        if (!$ticket) {
+            throw new \Exception("Ticket introuvable.");
+        }
+
+        // Vérification des droits : le technicien doit être celui assigné
+        if ($ticket->traiteur_id !== $userId) {
+            throw new \Exception("Vous n'êtes pas autorisé à modifier cet incident.");
+        }
+
+        // Vérification du statut : s'il est encore ouvert (non Resolu/Ferme)
+        if (in_array($ticket->etat, ['Resolu', 'Ferme'])) {
+            throw new \Exception("Impossible de modifier un incident déjà résolu ou fermé.");
+        }
+
+        // Mise à jour
+        if (isset($data['titre'])) {
+            $ticket->titre = $data['titre'];
+        }
+        if (isset($data['description'])) {
+            $ticket->description = $data['description'];
+        }
+        if (isset($data['priorite'])) {
+            $ticket->priorite = $data['priorite'];
+        }
+        if (isset($data['impact'])) {
+            $ticket->impact = $data['impact'];
+        }
+        if (isset($data['urgence'])) {
+            $ticket->urgence = $data['urgence'];
+        }
+
+        $this->ticketRepository->save($ticket);
+
+        return $ticket;
+    }
+
+    public function deleteTicketForTech(int $ticketId, int $userId): void
+    {
+        $ticket = $this->ticketRepository->findById($ticketId);
+
+        if (!$ticket) {
+            throw new \Exception("Ticket introuvable.");
+        }
+
+        // Vérification des droits
+        if ($ticket->traiteur_id !== $userId) {
+            throw new \Exception("Vous n'êtes pas autorisé à supprimer cet incident.");
+        }
+
+        // Vérification du statut
+        if (in_array($ticket->etat, ['Resolu', 'Ferme'])) {
+            throw new \Exception("Impossible de supprimer un incident déjà résolu ou fermé.");
+        }
+
+        $this->ticketRepository->delete($ticket);
     }
 }

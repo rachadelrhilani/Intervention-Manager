@@ -54,7 +54,6 @@ export function AuthProvider({ children }) {
     return userData.role;
   };
 
-  // 💡 3. Déconnexion améliorée (Prise en compte du Backend + Frontend)
   const handleLogout = async () => {
     try {
       // On tente d'avertir Laravel pour invalider le token côté serveur
@@ -72,12 +71,19 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Mettre à jour les informations de l'utilisateur en local
+  const updateLocalUser = (newUserData) => {
+    localStorage.setItem('user_data', JSON.stringify(newUserData));
+    setUser(newUserData);
+  };
+
   const value = {
     user,
     token,
     isAuthenticated: !!token,
     login: handleLogin,
     logout: handleLogout,
+    updateLocalUser,
     loading
   };
 
