@@ -61,7 +61,6 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error("Erreur lors de la déconnexion backend :", err);
     } finally {
-      // 🛡️ Quoi qu'il arrive (succès ou échec api), on nettoie impérativement le frontend
       localStorage.removeItem('jwt_token');
       localStorage.removeItem('user_data');
       localStorage.removeItem('user_role');

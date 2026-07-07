@@ -3,35 +3,40 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from '../components/Sidebar';
 import MobileNav from '../components/MobileNav';
+import { Loader2 } from 'lucide-react'; // Si tu veux un petit spinner
 
 export default function DashboardLayout() {
-  const { isAuthenticated, user } = useAuth();
+  // 1. Récupère aussi l'état "loading" depuis ton contexte
+  const { isAuthenticated, loading } = useAuth();
 
-  // Sécurité : Si l'utilisateur n'est pas connecté, retour immédiat au Login
+  // 2. TANT QUE L'AUTHENTIFICATION VÉRIFIE LES IDENTIFIANTS : On affiche un écran d'attente
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+        <span className="text-xs font-bold uppercase tracking-widest">Vérification de la session...</span>
+      </div>
+    );
+  }
+
+  // 3. Sécurité : Une fois le chargement fini, SI non connecté -> redirection
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-row antialiased">
-      
-      {/* Menu Gauche - Caché sur mobile, affiché à partir de MD (768px) */}
       <div className="hidden md:block">
         <Sidebar />
       </div>
 
-      {/* Conteneur Principal de droite */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-16 md:pb-0">
-        
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        <main className="flex-1 pt-20 pb-6 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
-        
       </div>
 
-      {/* Menu Bas - Affiché uniquement sur Mobile, caché sur PC */}
       <MobileNav />
-      
     </div>
   );
 }

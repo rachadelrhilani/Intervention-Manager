@@ -57,9 +57,39 @@ class GestionnaireService
         ];
     }
 
-    public function getUserList()
+    public function getUserList(int $perPage = 10, string $search = '')
     {
-        return $this->gestionnaireRepository->getAllUsers();
+        $paginatedUsers = $this->gestionnaireRepository->getAllUsersPaginated($perPage, $search);
+
+        // Formater les techniciens et demandeurs pour le frontend
+        $formattedUsers = collect($paginatedUsers->items())->map(function ($user) {
+            $niveauMapping = [
+                1 => 'L1',
+                2 => 'L2',
+                3 => 'L3'
+            ];
+            return [
+                'id'                     => $user->id,
+                'nom'                    => $user->nom,
+                'email'                  => $user->email,
+                'role'                   => $user->role,
+                'specialite'             => $user->specialite,
+                'niveau_competence'      => $niveauMapping[$user->niveau_traiteur] ?? 'L1',
+                'est_actif'              => (bool)$user->est_actif,
+                'tickets_traites'        => $user->tickets_traites,
+                'temps_moyen_resolution' => $user->temps_moyen_resolution,
+            ];
+        });
+
+        return [
+            'users' => $formattedUsers,
+            'pagination' => [
+                'current_page' => $paginatedUsers->currentPage(),
+                'last_page'    => $paginatedUsers->lastPage(),
+                'per_page'     => $paginatedUsers->perPage(),
+                'total'        => $paginatedUsers->total(),
+            ]
+        ];
     }
 
     /**

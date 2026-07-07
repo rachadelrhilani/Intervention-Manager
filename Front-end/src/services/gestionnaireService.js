@@ -24,8 +24,8 @@ export const gestionnaireService = {
     },
 
 
-    getAllUsers: async () => {
-        const response = await api.get('/gestionnaire/utilisateurs');
+    getAllUsers: async (page = 1, perPage = 10, search = '') => {
+        const response = await api.get(`/gestionnaire/utilisateurs?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`);
         if (response.data && response.data.status === 'success') {
             return response.data.data;
         }

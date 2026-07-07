@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   LayoutDashboard,
@@ -24,7 +24,6 @@ export default function Sidebar() {
     navigate('/login');
   };
 
-  // 1. Définition des configurations spécifiques à chaque rôle
   const roleConfigs = {
     demandeur: {
       badgeLabel: 'Client',
@@ -46,7 +45,6 @@ export default function Sidebar() {
         { name: 'Mon Profil', to: '/traiteur/profile', icon: User },
       ]
     },
-    // Le bloc 'administrateur' a été renommé et configuré pour le rôle 'gestionnaire'
     gestionnaire: {
       badgeLabel: 'Gestionnaire',
       subText: user?.service_supervision || 'Superviseur SLA',
@@ -60,23 +58,23 @@ export default function Sidebar() {
     }
   };
 
-  // Récupération de la configuration courante selon le rôle (fallback sur demandeur en sécurité)
   const currentRole = user?.role || 'demandeur';
   const currentConfig = roleConfigs[currentRole] || roleConfigs.demandeur;
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col h-screen sticky top-0 border-r border-slate-800">
+    // CHANGEMENT ICI : caché sur mobile (hidden), affiché à partir de md (md:flex)
+    <aside className="hidden md:flex w-64 bg-slate-900 text-slate-300 flex-col h-screen sticky top-0 border-r border-slate-800">
 
-      {/* Header de la Sidebar avec Badge Dynamique */}
+      {/* Header avec Badge */}
       <div className="h-16 flex items-center gap-2 px-6 border-b border-slate-800">
-        <Cpu className="h-6 w-6 text-indigo-400" />
+        <Cpu className="h-5 w-5 text-indigo-400" />
         <span className="font-bold text-lg text-white tracking-wide">SmartSupport</span>
         <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-medium capitalize">
           {currentConfig.badgeLabel}
         </span>
       </div>
 
-      {/* Profil Utilisateur Connecté avec Sous-titre Métier Dynamique */}
+      {/* Profil Utilisateur */}
       <div className="p-4 mx-3 my-4 bg-slate-800/40 rounded-xl border border-slate-800 flex items-center gap-3">
         <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-semibold uppercase shadow-md shadow-indigo-900/40">
           {user?.nom?.substring(0, 2) || 'U'}
@@ -87,7 +85,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Liens de Navigation Dynamiques */}
+      {/* Liens de Navigation */}
       <nav className="flex-grow px-3 space-y-1">
         {currentConfig.links.map((link) => {
           const Icon = link.icon;
@@ -109,7 +107,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Bouton Déconnexion */}
+      {/* Déconnexion */}
       <div className="p-4 border-t border-slate-800">
         <button
           onClick={handleLogoutClick}

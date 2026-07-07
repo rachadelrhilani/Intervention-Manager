@@ -44,10 +44,13 @@ class GestionnaireController extends Controller
             ], 500);
         }
     }
-    public function getAllUsers(): JsonResponse
+    public function getAllUsers(Request $request): JsonResponse
     {
         try {
-            $users = $this->gestionnaireService->getUserList();
+            $perPage = $request->query('per_page', 10);
+            $search = $request->query('search', '');
+
+            $users = $this->gestionnaireService->getUserList((int)$perPage, (string)$search);
 
             return response()->json([
                 'status' => 'success',

@@ -67,6 +67,33 @@ class GestionnaireRepository
         ->get();
     }
 
+    public function getAllUsersPaginated(int $perPage = 10, string $search = '')
+    {
+        $query = User::select(
+            'id', 
+            'nom', 
+            'email', 
+            'role', 
+            'specialite', 
+            'niveau_traiteur',
+            'est_actif',
+            'tickets_traites',
+            'temps_moyen_resolution',
+            'created_at'
+        )
+        ->where('role', '!=', 'gestionnaire');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nom', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%')
+                  ->orWhere('specialite', 'like', '%' . $search . '%');
+            });
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
+    }
+
     /**
      * Trouve un utilisateur spécifique par son identifiant.
      */
