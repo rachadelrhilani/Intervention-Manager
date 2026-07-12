@@ -15,12 +15,8 @@ class TicketAgentService
         $this->llmService = $llmService;
     }
 
-    /**
-     * Exécute l'agent de triage IA pour qualifier finement le ticket.
-     */
     public function exécuterTriageAgent(Ticket $ticket): array
     {
-        // 📜 Le Prompt Système de l'Agent
         $prompt = "
         Tu es un Agent IA expert en triage et dispatching de tickets de support informatique (ITSM Helpdesk).
         Ton rôle est d'analyser le ticket soumis et de générer une qualification technique précise sous format JSON.
@@ -63,22 +59,20 @@ class TicketAgentService
         - Logistique & Manutention : Problèmes sur chariots élévateurs, quais de chargement, stockeurs, bandes transporteuses, gestion des stocks.
         ";
 
-        // Appel du LLM configuré en mode JSON strict
+
         $reponseBrute = $this->llmService->genererJson($prompt);
 
         if (!$reponseBrute) {
             return $this->fallbackDefault();
         }
 
-        // Nettoyage initial
         $reponseBrute = trim($reponseBrute);
 
-        // Décodage du JSON
         $resultat = json_decode($reponseBrute, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             if (str_contains($reponseBrute, '"explication"')) {
-                $reponseReparee = $reponseBrute . '"}"'; // Tente de fermer proprement la string et le JSON
+                $reponseReparee = $reponseBrute . '"}"';
                 $resultat = json_decode($reponseReparee, true);
             }
         }
@@ -95,9 +89,6 @@ class TicketAgentService
         ];
     }
 
-    /**
-     * Valeurs de secours sécurisées si l'IA échoue
-     */
     private function fallbackDefault(): array
     {
         return [

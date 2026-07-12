@@ -8,9 +8,6 @@ use Illuminate\Support\Str;
 
 class AutomationService
 {
-    /**
-     * Analyse un ticket créé pour lui assigner automatiquement sa procédure / checklist.
-     */
     public function lancerAutomatisation(Ticket $ticket): void
     {
         $regles = RegleAutomatisation::where('est_active', true)
@@ -25,8 +22,6 @@ class AutomationService
             if (Str::contains($contenuTicket, $motCle)) {
 
                 if ($regle->action === 'injecter_checklist' && is_array($regle->parametres)) {
-                    
-                    // On extrait l'ID de la procédure depuis le JSON de la règle
                     $procedureId = $regle->parametres['procedure_id'] ?? null;
 
                     if ($procedureId) {

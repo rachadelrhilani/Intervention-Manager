@@ -16,7 +16,6 @@ class LLMService
     {
         $this->apiKey = config('services.gemini.key', env('GEMINI_API_KEY'));
         $this->model = config('services.gemini.model', env('GEMINI_MODEL', 'gemini-flash-latest'));
-        // URL officielle de l'API Gemini v1beta
         $this->baseUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent";
     }
 

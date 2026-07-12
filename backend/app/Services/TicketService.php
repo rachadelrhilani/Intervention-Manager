@@ -150,8 +150,6 @@ class TicketService
                         'type_demande' => 'AvecProcedure'
                     ]);
                 }
-
-                /* $this->injecterProceduresAutomatiques($ticket); */
             } catch (\Exception $e) {
                 Log::error("Échec de l'automatisation globale pour le ticket #{$ticket->id} : " . $e->getMessage());
             }
